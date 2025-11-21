@@ -1,0 +1,13 @@
+package be.kdg.ipj3.api.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+import java.util.List;
+import java.util.UUID;
+
+public record GameStartDto(
+        @Size(min = 1, max = 2) List<UUID> players,
+        @NotBlank String difficulty
+) {
+}

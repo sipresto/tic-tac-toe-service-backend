@@ -7,16 +7,19 @@ public class Game {
     private final UUID id;
     private final CellValue[][] board = new CellValue[3][3];
     private GameStatus status;
-    private Player playerX;
-    private Player playerO;
+    private final Player playerX;
+    private final Player playerO;
     private Player currentPlayer;
     private Player winner;
+    private final Difficulty difficulty;
 
-    public Game(Player playerX, Player playerO) {
+    public Game(Difficulty difficulty, Player playerX, Player playerO) {
         this.id = UUID.randomUUID();
         this.status = GameStatus.IN_PROGRESS;
         this.playerX = playerX;
         this.playerO = playerO;
+        this.currentPlayer = playerX;
+        this.difficulty = difficulty;
         for (int row = 0; row < 3; row++) {
             Arrays.fill(board[row], CellValue.EMPTY);
         }
@@ -50,13 +53,21 @@ public class Game {
         return winner;
     }
 
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
     private void switchCurrentPlayer() {
         currentPlayer = (currentPlayer == playerX) ? playerO : playerX;
     }
 
-    public void move(int row, int col) {
+    public void move(UUID player, int row, int col) {
         if (status != GameStatus.IN_PROGRESS) {
             throw new IllegalStateException("Game is not in progress");
+        }
+
+        if (player != currentPlayer.id()) {
+            throw new IllegalStateException("Not your turn");
         }
 
         if (row < 0 || row >= 3 || col < 0 || col >= 3) {
@@ -119,9 +130,5 @@ public class Game {
         return Arrays.stream(board)
                 .flatMap(Arrays::stream)
                 .noneMatch(cell -> cell == CellValue.EMPTY);
-    }
-
-    public boolean isCurrentPlayer(UUID playerId) {
-        return currentPlayer.getId() == playerId;
     }
 }
