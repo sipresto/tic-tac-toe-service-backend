@@ -2,20 +2,15 @@ package be.kdg.ipj3.domain;
 
 import java.util.UUID;
 
-public class Player {
-    private final UUID id;
-    private final boolean isHuman;
-
-    public Player(UUID id, boolean isHuman) {
-        this.id = id;
-        this.isHuman = isHuman;
+public record Player(
+        UUID id,
+        boolean isHuman
+) {
+    public static Player human(UUID id) {
+        return new Player(id, true);
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public boolean isHuman() {
-        return isHuman;
+    public static Player ai() {
+        return new Player(UUID.randomUUID(), false);
     }
 }
