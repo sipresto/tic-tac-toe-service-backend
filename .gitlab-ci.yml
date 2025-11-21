@@ -25,9 +25,6 @@ compile-job:
       - target/
     expire_in: 1 day
 
-include:
-  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
-
 maven-package-job:
   stage: package
   image: $DEFAULT_IMAGE_NAME
