@@ -26,7 +26,6 @@ compile-job:
     expire_in: 1 day
 
 include:
-  - template: Code-Quality.gitlab-ci.yml
   - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
 maven-package-job:
