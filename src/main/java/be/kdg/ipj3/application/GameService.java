@@ -2,10 +2,7 @@ package be.kdg.ipj3.application;
 
 import be.kdg.ipj3.api.dto.AiGameStateDto;
 import be.kdg.ipj3.api.dto.AiResponseDto;
-import be.kdg.ipj3.domain.CellValue;
-import be.kdg.ipj3.domain.Difficulty;
-import be.kdg.ipj3.domain.Game;
-import be.kdg.ipj3.domain.Player;
+import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.AiClient;
 import org.springframework.stereotype.Service;
 
@@ -111,6 +108,10 @@ public class GameService {
 
     public Game createRematch(UUID oldGameId) {
         Game oldGame = getGame(oldGameId);
+
+        if (oldGame.getStatus() == GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not finished yet");
+        }
 
         Game newGame = new Game(
                 oldGame.getDifficulty(),
