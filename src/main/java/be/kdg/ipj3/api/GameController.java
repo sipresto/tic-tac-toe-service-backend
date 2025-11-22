@@ -49,6 +49,14 @@ public class GameController {
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 
+    @PostMapping("/{gameId}/ai-move")
+    public ResponseEntity<GameStateDto> makeAiMove(
+            @PathVariable UUID gameId
+    ) {
+        Game game = gameService.applyAiMove(gameId);
+        return ResponseEntity.ok(GameStateDto.fromDomain(game));
+    }
+
     @PostMapping("/{gameId}/rematch")
     public ResponseEntity<GameStateDto> rematch(
             @PathVariable UUID gameId

@@ -9,15 +9,13 @@ import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.AiClient;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GameService {
     private final AiClient aiClient;
+    private final Random random = new Random();
 
     private final Map<UUID, Game> games = new ConcurrentHashMap<>();
 
@@ -45,26 +43,60 @@ public class GameService {
     public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
         Game game = getGame(gameId);
         game.move(playerId, row, col);
-        Player nextPlayer = game.getCurrentPlayer();
+        return game;
+    }
 
-        if (!nextPlayer.isHuman()) {
+    public Game applyAiMove(UUID gameId) {
+        Game game = getGame(gameId);
+        Player currentPlayer = game.getCurrentPlayer();
+
+        if (currentPlayer.isHuman()) {
+            throw new IllegalStateException("Current player is not AI");
+        }
+
+        int[] aiMove = getAiMoveWithFallback(game);
+        game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+
+        return game;
+    }
+
+    private int[] getAiMoveWithFallback(Game game) {
+        try {
             AiGameStateDto aiDto = buildAiStateDto(game);
             AiResponseDto aiResponse = aiClient.getAiMove(aiDto);
 
             int aiRow = aiResponse.bestMove().get(0);
             int aiCol = aiResponse.bestMove().get(1);
 
-            game.move(nextPlayer.id(), aiRow, aiCol);
+            return new int[]{aiRow, aiCol};
+        } catch (Exception e) {
+            return getRandomMove(game.getBoard());
+        }
+    }
+
+    private int[] getRandomMove(CellValue[][] board) {
+        List<int[]> availableMoves = new ArrayList<>();
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if (board[row][col] == CellValue.EMPTY) {
+                    availableMoves.add(new int[]{row, col});
+                }
+            }
         }
 
-        return game;
+        if (availableMoves.isEmpty()) {
+            throw new IllegalStateException("No available moves");
+        }
+
+        return availableMoves.get(random.nextInt(availableMoves.size()));
     }
 
     public AiGameStateDto buildAiStateDto(Game game) {
         return new AiGameStateDto(
                 "tic_tac_toe",
-                mapDifficulty(game.getDifficulty()),
-                game.getCurrentPlayer() == game.getPlayerX() ? "X" : "O",
+                game.getDifficulty().toString(),
+                game.getCurrentPlayer().equals(game.getPlayerX()) ? "X" : "O",
                 convertBoard(game.getBoard())
         );
     }
@@ -91,13 +123,5 @@ public class GameService {
         games.remove(oldGame.getId());
 
         return newGame;
-    }
-
-    private String mapDifficulty(Difficulty difficulty) {
-        return switch (difficulty) {
-            case EASY -> "easy";
-            case HARD -> "hard";
-            case IMPOSSIBLE -> "impossible";
-        };
     }
 }
