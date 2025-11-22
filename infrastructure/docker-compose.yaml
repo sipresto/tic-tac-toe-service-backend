@@ -73,6 +73,18 @@ services:
     networks:
       - kc
 
+  # ---------------------
+  # AI player
+  # ---------------------
+  ai_player:
+    image: matthiastruyzelaerekdg/integratieproject:ai-player
+    platform: linux/arm64
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+    restart: unless-stopped
+
 #  # ---------------------
 #  # PLATFORM BACKEND
 #  # ---------------------

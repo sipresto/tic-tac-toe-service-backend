@@ -51,8 +51,8 @@ public class GameService {
             AiGameStateDto aiDto = buildAiStateDto(game);
             AiResponseDto aiResponse = aiClient.getAiMove(aiDto);
 
-            int aiRow = aiResponse.bestMoveCoords().get(0);
-            int aiCol = aiResponse.bestMoveCoords().get(1);
+            int aiRow = aiResponse.bestMove().get(0);
+            int aiCol = aiResponse.bestMove().get(1);
 
             game.move(nextPlayer.id(), aiRow, aiCol);
         }
@@ -60,10 +60,10 @@ public class GameService {
         return game;
     }
 
-    private AiGameStateDto buildAiStateDto(Game game) {
+    public AiGameStateDto buildAiStateDto(Game game) {
         return new AiGameStateDto(
                 "tic_tac_toe",
-                game.getDifficulty().name().toLowerCase(),
+                mapDifficulty(game.getDifficulty()),
                 game.getCurrentPlayer() == game.getPlayerX() ? "X" : "O",
                 convertBoard(game.getBoard())
         );
@@ -91,5 +91,13 @@ public class GameService {
         games.remove(oldGame.getId());
 
         return newGame;
+    }
+
+    private String mapDifficulty(Difficulty difficulty) {
+        return switch (difficulty) {
+            case EASY -> "easy";
+            case HARD -> "hard";
+            case IMPOSSIBLE -> "impossible";
+        };
     }
 }
