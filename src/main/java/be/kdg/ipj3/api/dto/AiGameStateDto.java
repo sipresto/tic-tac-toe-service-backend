@@ -14,7 +14,7 @@ public record AiGameStateDto(
         @JsonProperty("current_player")
         String currentPlayer,
 
-        @JsonProperty("board_state")
-        List<List<String>> boardState
+        @JsonProperty("board")
+        List<List<String>> board
 ) {
 }

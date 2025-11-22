@@ -61,12 +61,12 @@ public class Game {
         currentPlayer = (currentPlayer == playerX) ? playerO : playerX;
     }
 
-    public void move(UUID player, int row, int col) {
+    public void move(UUID playerId, int row, int col) {
         if (status != GameStatus.IN_PROGRESS) {
             throw new IllegalStateException("Game is not in progress");
         }
 
-        if (player != currentPlayer.id()) {
+        if (!playerId.equals(currentPlayer.id())) {
             throw new IllegalStateException("Not your turn");
         }
 

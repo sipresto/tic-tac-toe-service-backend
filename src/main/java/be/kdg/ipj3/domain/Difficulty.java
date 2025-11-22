@@ -5,6 +5,11 @@ public enum Difficulty {
     HARD,
     IMPOSSIBLE;
 
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
+
     public static Difficulty fromString(String value) {
         try {
             return Difficulty.valueOf(value.toUpperCase());

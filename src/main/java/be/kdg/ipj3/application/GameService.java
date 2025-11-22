@@ -2,22 +2,17 @@ package be.kdg.ipj3.application;
 
 import be.kdg.ipj3.api.dto.AiGameStateDto;
 import be.kdg.ipj3.api.dto.AiResponseDto;
-import be.kdg.ipj3.domain.CellValue;
-import be.kdg.ipj3.domain.Difficulty;
-import be.kdg.ipj3.domain.Game;
-import be.kdg.ipj3.domain.Player;
+import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.AiClient;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GameService {
     private final AiClient aiClient;
+    private final Random random = new Random();
 
     private final Map<UUID, Game> games = new ConcurrentHashMap<>();
 
@@ -45,26 +40,60 @@ public class GameService {
     public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
         Game game = getGame(gameId);
         game.move(playerId, row, col);
-        Player nextPlayer = game.getCurrentPlayer();
+        return game;
+    }
 
-        if (!nextPlayer.isHuman()) {
-            AiGameStateDto aiDto = buildAiStateDto(game);
-            AiResponseDto aiResponse = aiClient.getAiMove(aiDto);
+    public Game applyAiMove(UUID gameId) {
+        Game game = getGame(gameId);
+        Player currentPlayer = game.getCurrentPlayer();
 
-            int aiRow = aiResponse.bestMoveCoords().get(0);
-            int aiCol = aiResponse.bestMoveCoords().get(1);
-
-            game.move(nextPlayer.id(), aiRow, aiCol);
+        if (currentPlayer.isHuman()) {
+            throw new IllegalStateException("Current player is not AI");
         }
+
+        int[] aiMove = getAiMoveWithFallback(game);
+        game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
 
         return game;
     }
 
-    private AiGameStateDto buildAiStateDto(Game game) {
+    private int[] getAiMoveWithFallback(Game game) {
+        try {
+            AiGameStateDto aiDto = buildAiStateDto(game);
+            AiResponseDto aiResponse = aiClient.getAiMove(aiDto);
+
+            int aiRow = aiResponse.bestMove().get(0);
+            int aiCol = aiResponse.bestMove().get(1);
+
+            return new int[]{aiRow, aiCol};
+        } catch (Exception e) {
+            return getRandomMove(game.getBoard());
+        }
+    }
+
+    private int[] getRandomMove(CellValue[][] board) {
+        List<int[]> availableMoves = new ArrayList<>();
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                if (board[row][col] == CellValue.EMPTY) {
+                    availableMoves.add(new int[]{row, col});
+                }
+            }
+        }
+
+        if (availableMoves.isEmpty()) {
+            throw new IllegalStateException("No available moves");
+        }
+
+        return availableMoves.get(random.nextInt(availableMoves.size()));
+    }
+
+    public AiGameStateDto buildAiStateDto(Game game) {
         return new AiGameStateDto(
                 "tic_tac_toe",
-                game.getDifficulty().name().toLowerCase(),
-                game.getCurrentPlayer() == game.getPlayerX() ? "X" : "O",
+                game.getDifficulty().toString(),
+                game.getCurrentPlayer().equals(game.getPlayerX()) ? "X" : "O",
                 convertBoard(game.getBoard())
         );
     }
@@ -79,6 +108,10 @@ public class GameService {
 
     public Game createRematch(UUID oldGameId) {
         Game oldGame = getGame(oldGameId);
+
+        if (oldGame.getStatus() == GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not finished yet");
+        }
 
         Game newGame = new Game(
                 oldGame.getDifficulty(),
