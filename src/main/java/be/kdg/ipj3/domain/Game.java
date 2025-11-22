@@ -66,7 +66,7 @@ public class Game {
             throw new IllegalStateException("Game is not in progress");
         }
 
-        if (playerId != currentPlayer.id()) {
+        if (!playerId.equals(currentPlayer.id())) {
             throw new IllegalStateException("Not your turn");
         }
 

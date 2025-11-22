@@ -29,6 +29,11 @@ Accept: application/json
   "col": 1
 }
 
+### AI make a move
+
+POST {{baseUrl}}/api/tictactoe/{{gameId}}/ai-move
+Accept: application/json
+
 ### Test ai response
 POST http://localhost:8000/games/tic-tac-toe/best-move
 Content-Type: application/json
