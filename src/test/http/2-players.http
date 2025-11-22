@@ -41,3 +41,12 @@ Accept: application/json
   "row": 1,
   "col": 1
 }
+
+### Rematch
+
+POST {{baseUrl}}/api/tictactoe/{{gameId}}/rematch
+Accept: application/json
+
+> {%
+    client.global.set("gameId", response.body['id']);
+%}

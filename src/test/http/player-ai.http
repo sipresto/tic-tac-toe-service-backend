@@ -34,30 +34,11 @@ Accept: application/json
 POST {{baseUrl}}/api/tictactoe/{{gameId}}/ai-move
 Accept: application/json
 
-### Test ai response
-POST http://localhost:8000/games/tic-tac-toe/best-move
-Content-Type: application/json
+### Rematch
+
+POST {{baseUrl}}/api/tictactoe/{{gameId}}/rematch
 Accept: application/json
 
-{
-  "game_name": "tic_tac_toe",
-  "difficulty": "hard",
-  "current_player": "O",
-  "board": [
-    [
-      null,
-      null,
-      null
-    ],
-    [
-      null,
-      "X",
-      null
-    ],
-    [
-      null,
-      null,
-      null
-    ]
-  ]
-}
+> {%
+    client.global.set("gameId", response.body['id']);
+%}
