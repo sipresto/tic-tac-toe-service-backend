@@ -14,9 +14,15 @@ import java.util.UUID;
 public interface JpaGameRepository extends JpaRepository<JpaGameEntity, UUID> {
     @Modifying
     @Transactional
-    @Query("DELETE FROM JpaGameEntity g WHERE g.status IN :statuses OR g.lastActivity < :cutoff")
-    void deleteByStatusOrLastActivityBefore(
+    @Query("DELETE FROM JpaGameEntity g WHERE g.status IN :statuses AND g.lastActivity < :cutoff")
+    void deleteByStatusAndLastActivityBefore(
             @Param("statuses") List<GameStatus> statuses,
+            @Param("cutoff") Instant cutoff
+    );
+
+    @Query("SELECT g FROM JpaGameEntity g WHERE g.status = :status AND g.lastActivity < :cutoff")
+    List<JpaGameEntity> findByStatusAndLastActivityBefore(
+            @Param("status") GameStatus status,
             @Param("cutoff") Instant cutoff
     );
 }

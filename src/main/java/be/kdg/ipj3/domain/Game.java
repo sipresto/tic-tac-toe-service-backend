@@ -153,4 +153,13 @@ public class Game {
                 .flatMap(Arrays::stream)
                 .noneMatch(cell -> cell == CellValue.EMPTY);
     }
+
+    public void resign(Player winnerByResignation) {
+        if (status != GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not in progress");
+        }
+
+        this.status = GameStatus.FINISHED;
+        this.winner = winnerByResignation;
+    }
 }

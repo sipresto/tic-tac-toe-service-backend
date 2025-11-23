@@ -74,4 +74,13 @@ public class GameController {
         gameService.removeGame(gameId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{gameId}/resign")
+    public ResponseEntity<GameStateDto> resign(
+            @PathVariable UUID gameId,
+            @RequestBody UUID playerId
+    ) {
+        Game game = gameService.resign(gameId, playerId);
+        return ResponseEntity.ok(GameStateDto.fromDomain(game));
+    }
 }

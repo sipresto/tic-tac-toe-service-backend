@@ -142,4 +142,26 @@ public class GameService {
     public void removeGame(UUID gameId) {
         gameRepository.deleteById(gameId);
     }
+
+    public Game resign(UUID gameId, UUID playerId) {
+        Game game = getGame(gameId);
+
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not in progress");
+        }
+
+        Player resigningPlayer = game.getPlayerX().id().equals(playerId)
+                ? game.getPlayerX()
+                : game.getPlayerO();
+
+        Player winner = resigningPlayer.equals(game.getPlayerX())
+                ? game.getPlayerO()
+                : game.getPlayerX();
+
+        game.resign(winner);
+
+        removeGame(gameId);
+
+        return game;
+    }
 }
