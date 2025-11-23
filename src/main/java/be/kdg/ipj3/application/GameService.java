@@ -3,20 +3,20 @@ package be.kdg.ipj3.application;
 import be.kdg.ipj3.api.dto.AiGameStateDto;
 import be.kdg.ipj3.api.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
-import be.kdg.ipj3.infrastructure.AiClient;
+import be.kdg.ipj3.infrastructure.ai.AiClient;
+import be.kdg.ipj3.infrastructure.jpa.GameRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GameService {
+    private final GameRepository gameRepository;
     private final AiClient aiClient;
     private final Random random = new Random();
 
-    private final Map<UUID, Game> games = new ConcurrentHashMap<>();
-
-    public GameService(AiClient aiClient) {
+    public GameService(GameRepository gameRepository, AiClient aiClient) {
+        this.gameRepository = gameRepository;
         this.aiClient = aiClient;
     }
 
@@ -25,12 +25,12 @@ public class GameService {
         Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast());
 
         Game game = new Game(difficulty, px, po);
-        games.put(game.getId(), game);
+        gameRepository.save(game);
         return game;
     }
 
     public Game getGame(UUID gameId) {
-        Game game = games.get(gameId);
+        Game game = gameRepository.findById(gameId).orElse(null);
         if (game == null) {
             throw new IllegalArgumentException("Game not found");
         }
@@ -40,6 +40,13 @@ public class GameService {
     public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
         Game game = getGame(gameId);
         game.move(playerId, row, col);
+
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
+            removeGame(gameId);
+        }
+
+        gameRepository.save(game);
+
         return game;
     }
 
@@ -53,6 +60,12 @@ public class GameService {
 
         int[] aiMove = getAiMoveWithFallback(game);
         game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
+            removeGame(gameId);
+        }
+
+        gameRepository.save(game);
 
         return game;
     }
@@ -119,10 +132,36 @@ public class GameService {
                 oldGame.getPlayerX()
         );
 
-        games.put(newGame.getId(), newGame);
+        gameRepository.save(newGame);
 
-        games.remove(oldGame.getId());
+        removeGame(oldGameId);
 
         return newGame;
+    }
+
+    public void removeGame(UUID gameId) {
+        gameRepository.deleteById(gameId);
+    }
+
+    public Game resign(UUID gameId, UUID playerId) {
+        Game game = getGame(gameId);
+
+        if (game.getStatus() != GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not in progress");
+        }
+
+        Player resigningPlayer = game.getPlayerX().id().equals(playerId)
+                ? game.getPlayerX()
+                : game.getPlayerO();
+
+        Player winner = resigningPlayer.equals(game.getPlayerX())
+                ? game.getPlayerO()
+                : game.getPlayerX();
+
+        game.resign(winner);
+
+        removeGame(gameId);
+
+        return game;
     }
 }

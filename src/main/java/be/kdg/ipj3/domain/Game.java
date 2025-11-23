@@ -1,28 +1,44 @@
 package be.kdg.ipj3.domain;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class Game {
     private final UUID id;
-    private final CellValue[][] board = new CellValue[3][3];
-    private GameStatus status;
+    private CellValue[][] board = new CellValue[3][3];
     private final Player playerX;
     private final Player playerO;
     private Player currentPlayer;
-    private Player winner;
+    private GameStatus status;
     private final Difficulty difficulty;
+    private Player winner;
+    private Instant lastActivity;
+
+    public Game(UUID id, CellValue[][] board, Player playerX, Player playerO, Player currentPlayer,
+                GameStatus status, Difficulty difficulty, Player winner, Instant lastActivity) {
+        this.id = id;
+        this.board = board;
+        this.playerX = playerX;
+        this.playerO = playerO;
+        this.currentPlayer = currentPlayer;
+        this.status = status;
+        this.difficulty = difficulty;
+        this.winner = winner;
+        this.lastActivity = lastActivity;
+    }
 
     public Game(Difficulty difficulty, Player playerX, Player playerO) {
         this.id = UUID.randomUUID();
-        this.status = GameStatus.IN_PROGRESS;
         this.playerX = playerX;
         this.playerO = playerO;
         this.currentPlayer = playerX;
+        this.status = GameStatus.IN_PROGRESS;
         this.difficulty = difficulty;
         for (int row = 0; row < 3; row++) {
             Arrays.fill(board[row], CellValue.EMPTY);
         }
+        this.lastActivity = Instant.now();
     }
 
     public UUID getId() {
@@ -49,12 +65,16 @@ public class Game {
         return status;
     }
 
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
     public Player getWinner() {
         return winner;
     }
 
-    public Difficulty getDifficulty() {
-        return difficulty;
+    public Instant getLastActivity() {
+        return lastActivity;
     }
 
     private void switchCurrentPlayer() {
@@ -88,6 +108,8 @@ public class Game {
         } else {
             switchCurrentPlayer();
         }
+
+        this.lastActivity = Instant.now();
     }
 
     private CellValue valueFor(Player player) {
@@ -130,5 +152,14 @@ public class Game {
         return Arrays.stream(board)
                 .flatMap(Arrays::stream)
                 .noneMatch(cell -> cell == CellValue.EMPTY);
+    }
+
+    public void resign(Player winnerByResignation) {
+        if (status != GameStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Game is not in progress");
+        }
+
+        this.status = GameStatus.FINISHED;
+        this.winner = winnerByResignation;
     }
 }
