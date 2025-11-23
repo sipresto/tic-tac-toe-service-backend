@@ -37,7 +37,6 @@ public class JpaGameEntity {
     @Enumerated(value = EnumType.STRING)
     private Difficulty difficulty;
 
-    @Column
     private UUID winnerId;
 
     @Column(nullable = false)
