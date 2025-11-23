@@ -1,5 +1,6 @@
 package be.kdg.ipj3.domain;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -12,8 +13,10 @@ public class Game {
     private GameStatus status;
     private final Difficulty difficulty;
     private Player winner;
+    private Instant lastActivity;
 
-    public Game(UUID id, CellValue[][] board, Player playerX, Player playerO, Player currentPlayer, GameStatus status, Difficulty difficulty, Player winner) {
+    public Game(UUID id, CellValue[][] board, Player playerX, Player playerO, Player currentPlayer,
+                GameStatus status, Difficulty difficulty, Player winner, Instant lastActivity) {
         this.id = id;
         this.board = board;
         this.playerX = playerX;
@@ -22,6 +25,7 @@ public class Game {
         this.status = status;
         this.difficulty = difficulty;
         this.winner = winner;
+        this.lastActivity = lastActivity;
     }
 
     public Game(Difficulty difficulty, Player playerX, Player playerO) {
@@ -34,6 +38,7 @@ public class Game {
         for (int row = 0; row < 3; row++) {
             Arrays.fill(board[row], CellValue.EMPTY);
         }
+        this.lastActivity = Instant.now();
     }
 
     public UUID getId() {
@@ -68,6 +73,10 @@ public class Game {
         return winner;
     }
 
+    public Instant getLastActivity() {
+        return lastActivity;
+    }
+
     private void switchCurrentPlayer() {
         currentPlayer = (currentPlayer == playerX) ? playerO : playerX;
     }
@@ -99,6 +108,8 @@ public class Game {
         } else {
             switchCurrentPlayer();
         }
+
+        this.lastActivity = Instant.now();
     }
 
     private CellValue valueFor(Player player) {

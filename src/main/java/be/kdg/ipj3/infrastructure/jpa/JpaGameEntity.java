@@ -3,6 +3,7 @@ package be.kdg.ipj3.infrastructure.jpa;
 import be.kdg.ipj3.domain.*;
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -39,11 +40,14 @@ public class JpaGameEntity {
     @Column
     private UUID winnerId;
 
+    @Column(nullable = false)
+    private Instant lastActivity;
+
     public JpaGameEntity() {
     } // for JPA
 
     public JpaGameEntity(UUID id, String board, UUID playerXId, boolean playerXHuman, UUID playerOId, boolean playerOHuman,
-                         UUID currentPlayerId, GameStatus status, Difficulty difficulty, UUID winnerId) {
+                         UUID currentPlayerId, GameStatus status, Difficulty difficulty, UUID winnerId,  Instant lastActivity) {
         this.id = id;
         this.board = board;
         this.playerXId = playerXId;
@@ -54,6 +58,7 @@ public class JpaGameEntity {
         this.status = status;
         this.difficulty = difficulty;
         this.winnerId = winnerId;
+        this.lastActivity = lastActivity;
     }
 
     public static JpaGameEntity fromDomain(Game game) {
@@ -67,7 +72,8 @@ public class JpaGameEntity {
                 game.getCurrentPlayer().id(),
                 game.getStatus(),
                 game.getDifficulty(),
-                game.getWinner() == null ? null : game.getWinner().id());
+                game.getWinner() == null ? null : game.getWinner().id(),
+                game.getLastActivity());
     }
 
     public Game toDomain() {
@@ -82,7 +88,8 @@ public class JpaGameEntity {
                 ? null
                 : (this.playerXId.equals(this.winnerId) ? playerX : playerO);
 
-        return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer, this.status, this.difficulty, winner);
+        return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer,
+                this.status, this.difficulty, winner,  this.lastActivity);
     }
 
     private static String encodeBoard(CellValue[][] board) {
