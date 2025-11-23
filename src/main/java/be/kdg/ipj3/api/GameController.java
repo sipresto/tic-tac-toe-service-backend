@@ -1,12 +1,14 @@
 package be.kdg.ipj3.api;
 
-import be.kdg.ipj3.api.dto.GameStartDto;
+import be.kdg.ipj3.api.dto.GameCreatedResponseDto;
+import be.kdg.ipj3.api.dto.GameStartRequestDto;
 import be.kdg.ipj3.api.dto.GameStateDto;
 import be.kdg.ipj3.api.dto.MoveDto;
 import be.kdg.ipj3.application.GameService;
 import be.kdg.ipj3.domain.Difficulty;
 import be.kdg.ipj3.domain.Game;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,18 +20,29 @@ import java.util.UUID;
 public class GameController {
     private final GameService gameService;
 
+    @Value("${game.base-url}")
+    private String gameBaseUrl;
+
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
 
     @PostMapping
-    public ResponseEntity<GameStateDto> createGame(
-            @Valid @RequestBody GameStartDto dto
+    public ResponseEntity<GameCreatedResponseDto> createGame(
+            @Valid @RequestBody GameStartRequestDto dto
     ) {
         Game game = gameService.createGame(Difficulty.fromString(dto.difficulty()), dto.players());
-        GameStateDto state = GameStateDto.fromDomain(game);
+
+        String gameUrl = gameBaseUrl + "/tictactoe/" + game.getId();
+        GameCreatedResponseDto response = new GameCreatedResponseDto(
+                game.getId(),
+                gameUrl,
+                GameStateDto.fromDomain(game)
+        );
+
         URI location = URI.create("/api/tictactoe/" + game.getId());
-        return ResponseEntity.created(location).body(state);
+
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("/{gameId}")
