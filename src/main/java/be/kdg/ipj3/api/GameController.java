@@ -66,4 +66,12 @@ public class GameController {
         URI location = URI.create("/api/tictactoe/" + newGame.getId());
         return ResponseEntity.created(location).body(state);
     }
+
+    @DeleteMapping("/{gameId}")
+    public ResponseEntity<Void> abandonGame(
+            @PathVariable UUID gameId
+    ) {
+        gameService.removeGame(gameId);
+        return ResponseEntity.noContent().build();
+    }
 }

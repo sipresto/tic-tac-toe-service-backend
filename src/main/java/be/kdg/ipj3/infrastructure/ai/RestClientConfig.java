@@ -1,4 +1,4 @@
-package be.kdg.ipj3.infrastructure;
+package be.kdg.ipj3.infrastructure.ai;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

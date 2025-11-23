@@ -1,4 +1,4 @@
-package be.kdg.ipj3.infrastructure;
+package be.kdg.ipj3.infrastructure.ai;
 
 import be.kdg.ipj3.api.dto.AiGameStateDto;
 import be.kdg.ipj3.api.dto.AiResponseDto;
