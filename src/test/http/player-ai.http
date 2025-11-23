@@ -14,7 +14,7 @@ Accept: application/json
 }
 
 > {%
-    client.global.set("gameId", response.body['id']);
+    client.global.set("gameId", response.body['initialState']['id']);
 %}
 
 ### Make a move
