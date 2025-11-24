@@ -5,7 +5,6 @@ import be.kdg.ipj3.api.dto.GameStartRequestDto;
 import be.kdg.ipj3.api.dto.GameStateDto;
 import be.kdg.ipj3.api.dto.MoveDto;
 import be.kdg.ipj3.application.GameService;
-import be.kdg.ipj3.domain.Difficulty;
 import be.kdg.ipj3.domain.Game;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,14 +30,10 @@ public class GameController {
     public ResponseEntity<GameCreatedResponseDto> createGame(
             @Valid @RequestBody GameStartRequestDto dto
     ) {
-        Game game = gameService.createGame(Difficulty.fromString(dto.difficulty()), dto.players());
+        Game game = gameService.createGame(dto.difficulty(), dto.players());
 
         String gameUrl = gameBaseUrl + "/tictactoe/" + game.getId();
-        GameCreatedResponseDto response = new GameCreatedResponseDto(
-                game.getId(),
-                gameUrl,
-                GameStateDto.fromDomain(game)
-        );
+        GameCreatedResponseDto response = new GameCreatedResponseDto(gameUrl);
 
         URI location = URI.create("/api/tictactoe/" + game.getId());
 

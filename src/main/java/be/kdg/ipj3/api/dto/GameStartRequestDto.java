@@ -1,5 +1,6 @@
 package be.kdg.ipj3.api.dto;
 
+import be.kdg.ipj3.domain.Difficulty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -8,6 +9,6 @@ import java.util.UUID;
 
 public record GameStartRequestDto(
         @Size(min = 1, max = 2) List<UUID> players,
-        @NotBlank String difficulty
+        @NotBlank Difficulty difficulty
 ) {
 }
