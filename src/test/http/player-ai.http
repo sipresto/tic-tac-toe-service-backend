@@ -44,3 +44,9 @@ Accept: application/json
 > {%
     client.global.set("gameId", response.body['id']);
 %}
+
+### Make a move
+
+GET {{baseUrl}}/api/tictactoe/{{gameId}}
+Content-Type: application/json
+Accept: application/json

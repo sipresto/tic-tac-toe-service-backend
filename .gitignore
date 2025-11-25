@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+/infrastructure/idp_mysql_data
+/infrastructure/postgresql
+/infrastructure/rabbitmq
