@@ -11,11 +11,13 @@ Accept: application/json
     "8e6dd3e3-1b6d-4c90-96ef-2fbdb0e43bc0",
     "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad"
   ],
-  "difficulty": "hard"
+  "difficulty": "HARD"
 }
 
 > {%
-    client.global.set("gameId", response.body['initialState']['id']);
+    const url = response.body.gameUrl;
+    const gameId = url.split('/').pop();
+    client.global.set("gameId", gameId);
 %}
 
 ### Player 1 move 1
