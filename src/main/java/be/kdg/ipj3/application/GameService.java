@@ -54,7 +54,6 @@ public class GameService {
             return game;
 
         } catch (ObjectOptimisticLockingFailureException e) {
-            // This means another thread updated the game at the same time
             throw new IllegalStateException("Another move was applied simultaneously. Please reload the game.", e);
         }
     }
@@ -149,7 +148,6 @@ public class GameService {
 
             gameRepository.save(newGame);
 
-            // Delete the old game after creating rematch
             removeGame(oldGameId);
 
             return newGame;
