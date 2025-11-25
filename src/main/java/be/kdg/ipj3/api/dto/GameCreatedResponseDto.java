@@ -1,9 +1,8 @@
 package be.kdg.ipj3.api.dto;
 
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
 
 public record GameCreatedResponseDto(
-        UUID gameId,
-        String gameUrl,
-        GameStateDto initialState
-) {}
+        @NotBlank String gameUrl
+) {
+}
