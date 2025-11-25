@@ -139,7 +139,7 @@ public class GameService {
         return newGame;
     }
 
-    public void removeGame(UUID gameId) {
+    private void removeGame(UUID gameId) {
         gameRepository.deleteById(gameId);
     }
 

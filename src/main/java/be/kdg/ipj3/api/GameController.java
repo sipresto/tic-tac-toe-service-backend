@@ -75,14 +75,6 @@ public class GameController {
         return ResponseEntity.created(location).body(state);
     }
 
-    @DeleteMapping("/{gameId}")
-    public ResponseEntity<Void> abandonGame(
-            @PathVariable UUID gameId
-    ) {
-        gameService.removeGame(gameId);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/{gameId}/resign")
     public ResponseEntity<GameStateDto> resign(
             @PathVariable UUID gameId,
