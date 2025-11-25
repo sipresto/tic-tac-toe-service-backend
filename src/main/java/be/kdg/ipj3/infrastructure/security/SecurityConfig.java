@@ -27,15 +27,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/games").permitAll()
-                        .requestMatchers("/games").permitAll()
                         .requestMatchers("/api/tictactoe/**").permitAll()
-                        .requestMatchers("/api/games/filter").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/user/**").hasRole("PLAYER")
-                        .requestMatchers("/api/games/manage/**").hasRole("GAME_DEVELOPER")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
