@@ -12,9 +12,6 @@ public class JpaGameEntity {
     @Id
     private UUID id;
 
-    @Version
-    private Long version;
-
     @Column(nullable = false, length = 9)
     private String board;
 

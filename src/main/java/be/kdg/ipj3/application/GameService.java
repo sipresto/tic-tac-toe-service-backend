@@ -25,6 +25,7 @@ public class GameService {
         this.messageSendHandler = messageSendHandler;
     }
 
+    @Transactional
     public Game createGame(Difficulty difficulty, List<UUID> players) {
         Player px = Player.human(players.getFirst());
         Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast());
@@ -53,9 +54,10 @@ public class GameService {
                 removeGame(gameId);
             }
 
-            if (game.isDraw() || game.isWinning()) {
+            if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
             }
+
             gameRepository.save(game);
             return game;
 
@@ -77,6 +79,10 @@ public class GameService {
 
             int[] aiMove = getAiMoveWithFallback(game);
             game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+
+            if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
+                messageSendHandler.sendGameResult(game);
+            }
 
             if (game.getStatus() != GameStatus.IN_PROGRESS) {
                 removeGame(gameId);
@@ -186,10 +192,11 @@ public class GameService {
                     : game.getPlayerX();
 
             game.resign(winner);
+            gameRepository.save(game);
+
+            messageSendHandler.sendGameResult(game);
 
             removeGame(gameId);
-            messageSendHandler.sendGameResult(game);
-            gameRepository.save(game);
 
 
             return game;
