@@ -5,6 +5,7 @@ import be.kdg.ipj3.domain.GameStatus;
 import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.jpa.JpaGameEntity;
 import be.kdg.ipj3.infrastructure.jpa.JpaGameRepository;
+import be.kdg.ipj3.infrastructure.messaging.MessageSendHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,12 @@ public class GameCleanupService {
     @Value("${abandoned.cutoff.minutes}")
     private int abandonedGameCutoffMinutes;
 
-    public GameCleanupService(JpaGameRepository jpaGameRepository) {
+    private final MessageSendHandler messageSendHandler;
+
+
+    public GameCleanupService(JpaGameRepository jpaGameRepository, MessageSendHandler messageSendHandler) {
         this.jpaGameRepository = jpaGameRepository;
+        this.messageSendHandler = messageSendHandler;
     }
 
     @Scheduled(fixedRate = 600000)
@@ -45,6 +50,7 @@ public class GameCleanupService {
                     : game.getPlayerX();
 
             game.resign(winner);
+            messageSendHandler.sendGameResult(game);
 
             jpaGameRepository.save(JpaGameEntity.fromDomain(game));
         }

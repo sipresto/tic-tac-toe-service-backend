@@ -5,6 +5,7 @@ import be.kdg.ipj3.api.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
+import be.kdg.ipj3.infrastructure.messaging.MessageSendHandler;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,12 @@ public class GameService {
     private final GameRepository gameRepository;
     private final AiClient aiClient;
     private final Random random = new Random();
+    private final MessageSendHandler messageSendHandler;
 
-    public GameService(GameRepository gameRepository, AiClient aiClient) {
+    public GameService(GameRepository gameRepository, AiClient aiClient, MessageSendHandler messageSendHandler) {
         this.gameRepository = gameRepository;
         this.aiClient = aiClient;
+        this.messageSendHandler = messageSendHandler;
     }
 
     @Transactional
@@ -51,8 +54,13 @@ public class GameService {
                 removeGame(gameId);
             }
 
+            if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
+                messageSendHandler.sendGameResult(game);
+            }
+
             gameRepository.save(game);
             return game;
+
 
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalStateException("Another move was applied simultaneously. Please reload the game.", e);
@@ -71,6 +79,10 @@ public class GameService {
 
             int[] aiMove = getAiMoveWithFallback(game);
             game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+
+            if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
+                messageSendHandler.sendGameResult(game);
+            }
 
             if (game.getStatus() != GameStatus.IN_PROGRESS) {
                 removeGame(gameId);
@@ -180,9 +192,12 @@ public class GameService {
                     : game.getPlayerX();
 
             game.resign(winner);
+            gameRepository.save(game);
+
+            messageSendHandler.sendGameResult(game);
 
             removeGame(gameId);
-            gameRepository.save(game);
+
 
             return game;
         } catch (ObjectOptimisticLockingFailureException e) {

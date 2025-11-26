@@ -1,9 +1,6 @@
 package be.kdg.ipj3.api;
 
-import be.kdg.ipj3.api.dto.GameCreatedResponseDto;
-import be.kdg.ipj3.api.dto.GameStartRequestDto;
-import be.kdg.ipj3.api.dto.GameStateDto;
-import be.kdg.ipj3.api.dto.MoveDto;
+import be.kdg.ipj3.api.dto.*;
 import be.kdg.ipj3.application.GameService;
 import be.kdg.ipj3.domain.Game;
 import jakarta.validation.Valid;
@@ -78,9 +75,9 @@ public class GameController {
     @PostMapping("/{gameId}/resign")
     public ResponseEntity<GameStateDto> resign(
             @PathVariable UUID gameId,
-            @RequestBody UUID playerId
+            @Valid @RequestBody ResignRequestDto dto
     ) {
-        Game game = gameService.resign(gameId, playerId);
+        Game game = gameService.resign(gameId, dto.playerId());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 }
