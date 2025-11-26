@@ -5,7 +5,9 @@ import be.kdg.ipj3.api.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -37,37 +39,47 @@ public class GameService {
         return game;
     }
 
+    @Transactional
     public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
-        Game game = getGame(gameId);
-        game.move(playerId, row, col);
+        try {
+            Game game = getGame(gameId);
 
-        if (game.getStatus() != GameStatus.IN_PROGRESS) {
-            removeGame(gameId);
+            game.move(playerId, row, col);
+
+            if (game.getStatus() != GameStatus.IN_PROGRESS) {
+                removeGame(gameId);
+            }
+
+            gameRepository.save(game);
+            return game;
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another move was applied simultaneously. Please reload the game.", e);
         }
-
-        gameRepository.save(game);
-
-        return game;
     }
 
+    @Transactional
     public Game applyAiMove(UUID gameId) {
-        Game game = getGame(gameId);
-        Player currentPlayer = game.getCurrentPlayer();
+        try {
+            Game game = getGame(gameId);
+            Player currentPlayer = game.getCurrentPlayer();
 
-        if (currentPlayer.isHuman()) {
-            throw new IllegalStateException("Current player is not AI");
+            if (currentPlayer.isHuman()) {
+                throw new IllegalStateException("Current player is not AI");
+            }
+
+            int[] aiMove = getAiMoveWithFallback(game);
+            game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+
+            if (game.getStatus() != GameStatus.IN_PROGRESS) {
+                removeGame(gameId);
+            }
+
+            gameRepository.save(game);
+            return game;
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another move was applied simultaneously. Please reload the game.", e);
         }
-
-        int[] aiMove = getAiMoveWithFallback(game);
-        game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
-
-        if (game.getStatus() != GameStatus.IN_PROGRESS) {
-            removeGame(gameId);
-        }
-
-        gameRepository.save(game);
-
-        return game;
     }
 
     private int[] getAiMoveWithFallback(Game game) {
@@ -119,49 +131,61 @@ public class GameService {
                 .toList();
     }
 
+    @Transactional
     public Game createRematch(UUID oldGameId) {
-        Game oldGame = getGame(oldGameId);
+        try {
+            Game oldGame = getGame(oldGameId);
 
-        if (oldGame.getStatus() == GameStatus.IN_PROGRESS) {
-            throw new IllegalStateException("Game is not finished yet");
+            if (oldGame.getStatus() == GameStatus.IN_PROGRESS) {
+                throw new IllegalStateException("Game is not finished yet");
+            }
+
+            Game newGame = new Game(
+                    oldGame.getDifficulty(),
+                    oldGame.getPlayerO(),
+                    oldGame.getPlayerX()
+            );
+
+            gameRepository.save(newGame);
+
+            removeGame(oldGameId);
+
+            return newGame;
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
         }
-
-        Game newGame = new Game(
-                oldGame.getDifficulty(),
-                oldGame.getPlayerO(),
-                oldGame.getPlayerX()
-        );
-
-        gameRepository.save(newGame);
-
-        removeGame(oldGameId);
-
-        return newGame;
     }
 
     private void removeGame(UUID gameId) {
         gameRepository.deleteById(gameId);
     }
 
+    @Transactional
     public Game resign(UUID gameId, UUID playerId) {
-        Game game = getGame(gameId);
+        try {
+            Game game = getGame(gameId);
 
-        if (game.getStatus() != GameStatus.IN_PROGRESS) {
-            throw new IllegalStateException("Game is not in progress");
+            if (game.getStatus() != GameStatus.IN_PROGRESS) {
+                throw new IllegalStateException("Game is not in progress");
+            }
+
+            Player resigningPlayer = game.getPlayerX().id().equals(playerId)
+                    ? game.getPlayerX()
+                    : game.getPlayerO();
+
+            Player winner = resigningPlayer.equals(game.getPlayerX())
+                    ? game.getPlayerO()
+                    : game.getPlayerX();
+
+            game.resign(winner);
+
+            removeGame(gameId);
+            gameRepository.save(game);
+
+            return game;
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
         }
-
-        Player resigningPlayer = game.getPlayerX().id().equals(playerId)
-                ? game.getPlayerX()
-                : game.getPlayerO();
-
-        Player winner = resigningPlayer.equals(game.getPlayerX())
-                ? game.getPlayerO()
-                : game.getPlayerX();
-
-        game.resign(winner);
-
-        removeGame(gameId);
-
-        return game;
     }
 }
