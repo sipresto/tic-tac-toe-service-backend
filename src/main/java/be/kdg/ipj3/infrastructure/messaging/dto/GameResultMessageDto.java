@@ -11,18 +11,22 @@ public record GameResultMessageDto(UUID gameId,
                                    UUID playerOId,
                                    UUID winnerId,
                                    Difficulty difficulty,
-                                   String finalStatus,
+                                   SessionResult finalStatus,
                                    Instant completedAt
 ) {
 
     public static GameResultMessageDto fromDomain(Game game) {
         return new GameResultMessageDto(
                 game.getId(),
-                game.getPlayerX().id(),
-                game.getPlayerO().id(),
+                game.getPlayerX().isHuman() ? game.getPlayerX().id() : null,
+                game.getPlayerO().isHuman() ? game.getPlayerO().id() : null,
                 game.getWinner() != null ? game.getWinner().id() : null,
                 game.getDifficulty(),
-                game.getStatus().name(),
+                game.getWinner() == null
+                        ? SessionResult.DRAW
+                        : (game.getWinner().isHuman()
+                        ? SessionResult.PLAYER_WIN
+                        : SessionResult.AI_WIN),
                 game.getLastActivity()
         );
     }

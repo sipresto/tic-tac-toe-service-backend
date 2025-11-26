@@ -59,13 +59,13 @@ Authorization: Bearer {{token}}
 
 ### Rematch
 
-#POST {{baseUrl}}/{{gameId}}/rematch
-#Accept: application/json
-#Authorization: Bearer {{token}}
-#
-#> {%
-#    client.global.set("gameId", response.body['id']);
-#%}
+POST {{baseUrl}}/{{gameId}}/rematch
+Accept: application/json
+Authorization: Bearer {{token}}
+
+> {%
+    client.global.set("gameId", response.body['id']);
+%}
 
 #### Make a move
 #
