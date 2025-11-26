@@ -20,7 +20,9 @@ public record GameResultMessageDto(UUID gameId,
                 game.getId(),
                 game.getPlayerX().isHuman() ? game.getPlayerX().id() : null,
                 game.getPlayerO().isHuman() ? game.getPlayerO().id() : null,
-                game.getWinner() != null ? game.getWinner().id() : null,
+                game.getWinner() != null && game.getWinner().isHuman()
+                        ? game.getWinner().id()
+                        : null,
                 game.getDifficulty(),
                 game.getWinner() == null
                         ? SessionResult.DRAW
