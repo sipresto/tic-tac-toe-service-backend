@@ -22,6 +22,7 @@ public class GameService {
         this.aiClient = aiClient;
     }
 
+    @Transactional
     public Game createGame(Difficulty difficulty, List<UUID> players) {
         Player px = Player.human(players.getFirst());
         Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast());
