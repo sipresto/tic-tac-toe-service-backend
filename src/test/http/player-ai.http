@@ -1,8 +1,8 @@
-@baseUrl = http://localhost:8096
+@baseUrl = http://localhost/api/games/tictactoe
 
 ### Create game
 
-POST {{baseUrl}}/api/tictactoe
+POST {{baseUrl}}
 Content-Type: application/json
 Accept: application/json
 
@@ -21,7 +21,7 @@ Accept: application/json
 
 ### Make a move
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -33,12 +33,12 @@ Accept: application/json
 
 ### AI make a move
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/ai-move
+POST {{baseUrl}}/{{gameId}}/ai-move
 Accept: application/json
 
 ### Rematch
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/rematch
+POST {{baseUrl}}/{{gameId}}/rematch
 Accept: application/json
 
 > {%
@@ -47,6 +47,6 @@ Accept: application/json
 
 ### Make a move
 
-GET {{baseUrl}}/api/tictactoe/{{gameId}}
+GET {{baseUrl}}/{{gameId}}
 Content-Type: application/json
 Accept: application/json
