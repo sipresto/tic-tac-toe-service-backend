@@ -5,6 +5,7 @@ import be.kdg.ipj3.api.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
+import be.kdg.ipj3.infrastructure.messaging.MessageSendHandler;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,12 @@ public class GameService {
     private final GameRepository gameRepository;
     private final AiClient aiClient;
     private final Random random = new Random();
+    private final MessageSendHandler messageSendHandler;
 
-    public GameService(GameRepository gameRepository, AiClient aiClient) {
+    public GameService(GameRepository gameRepository, AiClient aiClient, MessageSendHandler messageSendHandler) {
         this.gameRepository = gameRepository;
         this.aiClient = aiClient;
+        this.messageSendHandler = messageSendHandler;
     }
 
     public Game createGame(Difficulty difficulty, List<UUID> players) {
@@ -50,8 +53,12 @@ public class GameService {
                 removeGame(gameId);
             }
 
+            if (game.isDraw() || game.isWinning()) {
+                messageSendHandler.sendGameResult(game);
+            }
             gameRepository.save(game);
             return game;
+
 
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalStateException("Another move was applied simultaneously. Please reload the game.", e);
@@ -181,7 +188,9 @@ public class GameService {
             game.resign(winner);
 
             removeGame(gameId);
+            messageSendHandler.sendGameResult(game);
             gameRepository.save(game);
+
 
             return game;
         } catch (ObjectOptimisticLockingFailureException e) {
