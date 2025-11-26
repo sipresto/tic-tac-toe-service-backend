@@ -32,10 +32,10 @@ public class GameController {
     ) {
         Game game = gameService.createGame(dto.difficulty(), dto.players());
 
-        String gameUrl = gameBaseUrl + "/tictactoe/" + game.getId();
+        String gameUrl = gameBaseUrl + game.getId();
         GameCreatedResponseDto response = new GameCreatedResponseDto(gameUrl);
 
-        URI location = URI.create("/api/tictactoe/" + game.getId());
+        URI location = URI.create("/api/games/tictactoe" + game.getId());
 
         return ResponseEntity.created(location).body(response);
     }
