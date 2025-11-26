@@ -1,8 +1,8 @@
-@baseUrl = http://localhost:8096
+@baseUrl = http://localhost/api/games/tictactoe
 
 ### Create game
 
-POST {{baseUrl}}/api/tictactoe
+POST {{baseUrl}}
 Content-Type: application/json
 Accept: application/json
 
@@ -22,7 +22,7 @@ Accept: application/json
 
 ### Player 1 move 1
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -34,7 +34,7 @@ Accept: application/json
 
 ### Player 2 wrong move
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -45,7 +45,7 @@ Accept: application/json
 }
 
 ### Player 2 move 1
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -57,7 +57,7 @@ Accept: application/json
 
 ### Player 1 move 2
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -68,7 +68,7 @@ Accept: application/json
 }
 
 ### Player 2 move 2
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -80,7 +80,7 @@ Accept: application/json
 
 ### Player 1 move 3
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -91,7 +91,7 @@ Accept: application/json
 }
 
 ### Player 2 game is over
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/move
+POST {{baseUrl}}/{{gameId}}/move
 Content-Type: application/json
 Accept: application/json
 
@@ -103,7 +103,7 @@ Accept: application/json
 
 ### Rematch
 
-POST {{baseUrl}}/api/tictactoe/{{gameId}}/rematch
+POST {{baseUrl}}/{{gameId}}/rematch
 Accept: application/json
 
 > {%

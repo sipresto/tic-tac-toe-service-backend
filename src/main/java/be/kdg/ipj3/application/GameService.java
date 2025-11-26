@@ -157,7 +157,7 @@ public class GameService {
         }
     }
 
-    public void removeGame(UUID gameId) {
+    private void removeGame(UUID gameId) {
         gameRepository.deleteById(gameId);
     }
 
