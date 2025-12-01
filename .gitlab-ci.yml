@@ -42,7 +42,7 @@ maven-package-job:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - chmod +x ./mvnw
   script:
-    - ./mvnw spring-boot:build-image -Dimage=$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-latest} -DskipTests
+    - ./mvnw spring-boot:build-image -Dimage=$CI_REGISTRY_IMAGE/tic-tac-toe-service-backend:0.0.1-SNAPSHOT -DskipTests
     - docker tag $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-latest} $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-latest}
     - docker push $CI_REGISTRY_IMAGE:latest
