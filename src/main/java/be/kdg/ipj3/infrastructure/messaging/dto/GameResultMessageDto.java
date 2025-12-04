@@ -4,22 +4,35 @@ import be.kdg.ipj3.domain.Difficulty;
 import be.kdg.ipj3.domain.Game;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
 
-public record GameResultMessageDto(UUID gameId,
-                                   UUID playerXId,
-                                   UUID playerOId,
-                                   UUID winnerId,
-                                   Difficulty difficulty,
-                                   SessionResult finalStatus,
-                                   Instant completedAt
+public record GameResultMessageDto(
+        UUID gameId,
+        List<UUID> players,
+        UUID winnerId,
+        Difficulty difficulty,
+        SessionResult sessionResult,
+        Instant completedAt,
+        Map<String, Map<String, Object>> metadata
 ) {
 
     public static GameResultMessageDto fromDomain(Game game) {
+        List<UUID> players = new ArrayList<>();
+        Map<String, Map<String, Object>> metadata = new HashMap<>();
+
+        if (game.getPlayerX().isHuman()) {
+            players.add(game.getPlayerX().id());
+            metadata.put(game.getPlayerX().id().toString(), Map.of("playerSide", "X"));
+        }
+        if (game.getPlayerO().isHuman()) {
+            players.add(game.getPlayerO().id());
+            metadata.put(game.getPlayerO().id().toString(), Map.of("playerSide", "O"));
+        }
+
+        // TODO: this is the gameid of TTT in data.sql, shouldn't be used like this
         return new GameResultMessageDto(
-                game.getId(),
-                game.getPlayerX().isHuman() ? game.getPlayerX().id() : null,
-                game.getPlayerO().isHuman() ? game.getPlayerO().id() : null,
+                UUID.fromString("c3c1d2b0-82fa-43a7-b326-0eb96136ecbc"),
+                players,
                 game.getWinner() != null && game.getWinner().isHuman()
                         ? game.getWinner().id()
                         : null,
@@ -29,7 +42,8 @@ public record GameResultMessageDto(UUID gameId,
                         : (game.getWinner().isHuman()
                         ? SessionResult.PLAYER_WIN
                         : SessionResult.AI_WIN),
-                game.getLastActivity()
+                game.getLastActivity(),
+                metadata
         );
     }
 }
