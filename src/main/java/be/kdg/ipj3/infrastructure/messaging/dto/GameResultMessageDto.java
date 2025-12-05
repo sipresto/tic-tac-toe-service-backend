@@ -46,5 +46,11 @@ public record GameResultMessageDto(
                 metadata
         );
     }
+
+    public enum SessionResult {
+        PLAYER_WIN,
+        AI_WIN,
+        DRAW
+    }
 }
 

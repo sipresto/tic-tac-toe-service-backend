@@ -51,6 +51,7 @@ public class GameCleanupService {
 
             game.resign(winner);
             messageSendHandler.sendGameResult(game);
+            messageSendHandler.sendAchievementCompleted(game);
 
             jpaGameRepository.save(JpaGameEntity.fromDomain(game));
         }
