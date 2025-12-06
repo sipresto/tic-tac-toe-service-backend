@@ -56,6 +56,7 @@ public class GameService {
 
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
+                messageSendHandler.sendAchievementCompleted(game);
             }
 
             gameRepository.save(game);
@@ -82,6 +83,7 @@ public class GameService {
 
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
+                messageSendHandler.sendAchievementCompleted(game);
             }
 
             if (game.getStatus() != GameStatus.IN_PROGRESS) {
@@ -195,6 +197,7 @@ public class GameService {
             gameRepository.save(game);
 
             messageSendHandler.sendGameResult(game);
+            messageSendHandler.sendAchievementCompleted(game);
 
             removeGame(gameId);
 

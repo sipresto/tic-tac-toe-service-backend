@@ -1,17 +1,29 @@
 @baseUrl = http://localhost/api/games/tictactoe
+@playerId1 = cf0138b7-3272-4d1c-a34d-de88a47fe94c
+@playerId2 = 6d0cdf67-26c4-4354-a4df-9c4a7575dbb6
+
+POST http://localhost/auth/realms/game_platform/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=game-platform&client_secret=Ik0Ek2wANj5NXLUh6ZWd7SBD8XbxkFVv&username=johnny&password=Test123&grant_type=password&scope=openid
+
+> {%
+    client.global.set("token", response.body.access_token);
+%}
 
 ### Create game
 
 POST {{baseUrl}}
 Content-Type: application/json
 Accept: application/json
+Authorization: Bearer {{token}}
 
 {
   "players": [
-    "8e6dd3e3-1b6d-4c90-96ef-2fbdb0e43bc0",
-    "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad"
+    "{{playerId1}}",
+    "{{playerId2}}"
   ],
-  "difficulty": "HARD"
+  "difficulty": null
 }
 
 > {%
@@ -27,7 +39,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "8e6dd3e3-1b6d-4c90-96ef-2fbdb0e43bc0",
+  "playerId": "{{playerId1}}",
   "row": 1,
   "col": 1
 }
@@ -39,7 +51,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad",
+  "playerId": "{{playerId2}}",
   "row": 1,
   "col": 1
 }
@@ -50,7 +62,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad",
+  "playerId": "{{playerId2}}",
   "row": 1,
   "col": 0
 }
@@ -62,7 +74,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "8e6dd3e3-1b6d-4c90-96ef-2fbdb0e43bc0",
+  "playerId": "{{playerId1}}",
   "row": 0,
   "col": 0
 }
@@ -73,7 +85,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad",
+  "playerId": "{{playerId2}}",
   "row": 2,
   "col": 0
 }
@@ -85,7 +97,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "8e6dd3e3-1b6d-4c90-96ef-2fbdb0e43bc0",
+  "playerId": "{{playerId1}}",
   "row": 2,
   "col": 2
 }
@@ -96,7 +108,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "playerId": "f2c9c2b8-e7c9-4f47-9c2b-7c3e2ccf48ad",
+  "playerId": "{{playerId2}}",
   "row": 1,
   "col": 2
 }
@@ -109,3 +121,73 @@ Accept: application/json
 > {%
     client.global.set("gameId", response.body['id']);
 %}
+
+### Game 2 player 2 move 1
+
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId2}}",
+  "row": 1,
+  "col": 0
+}
+
+### Game 2 player 1 move 1
+
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId1}}",
+  "row": 1,
+  "col": 1
+}
+
+### Game 2 player 2 move 2
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId2}}",
+  "row": 2,
+  "col": 0
+}
+
+### Game 2 Player 1 move 2
+
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId1}}",
+  "row": 0,
+  "col": 0
+}
+
+### Game 2 player 2 move 3
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId2}}",
+  "row": 0,
+  "col": 2
+}
+
+### Game 2 player 1 move 3
+
+POST {{baseUrl}}/{{gameId}}/move
+Content-Type: application/json
+Accept: application/json
+
+{
+  "playerId": "{{playerId1}}",
+  "row": 2,
+  "col": 2
+}
