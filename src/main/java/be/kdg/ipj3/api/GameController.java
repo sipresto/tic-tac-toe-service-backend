@@ -6,6 +6,8 @@ import be.kdg.ipj3.domain.Game;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,11 +30,16 @@ public class GameController {
             @Valid @RequestBody GameStartRequestDto dto
     ) {
         Game game = gameService.createGame(dto.difficulty(), dto.players());
-
-        String gameUrl = gameBaseUrl + game.getId();
+        String gameUrl;
+        if (!gameBaseUrl.contains("games")) {
+            gameUrl = gameBaseUrl + "/games/tictactoe/" + game.getId();
+        }
+        else {
+            gameUrl = gameBaseUrl + game.getId();
+        }
         GameCreatedResponseDto response = new GameCreatedResponseDto(gameUrl);
 
-        URI location = URI.create("/api/games/tictactoe" + game.getId());
+        URI location = URI.create("/api/games/tictactoe/" + game.getId());
 
         return ResponseEntity.created(location).body(response);
     }
@@ -48,6 +55,7 @@ public class GameController {
     @PostMapping("/{gameId}/move")
     public ResponseEntity<GameStateDto> makeMove(
             @PathVariable UUID gameId,
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody MoveDto dto
     ) {
         Game game = gameService.applyMove(gameId, dto.playerId(), dto.row(), dto.col());
