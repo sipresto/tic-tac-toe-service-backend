@@ -17,25 +17,6 @@ import java.util.Map;
 @Configuration
 public class RabbitMQConfig {
     @Bean
-    public CachingConnectionFactory connectionFactory(
-            @Value("${spring.rabbitmq.host:localhost}") String host,
-            @Value("${spring.rabbitmq.port:5672}") int port,
-            @Value("${spring.rabbitmq.username:guest}") String username,
-            @Value("${spring.rabbitmq.password:guest}") String password) {
-
-        CachingConnectionFactory factory = new CachingConnectionFactory();
-        factory.setHost(host);
-        factory.setPort(port);
-        factory.setUsername(username);
-        factory.setPassword(password);
-
-        factory.setConnectionTimeout(5000);
-        factory.setChannelCacheSize(10);
-
-        return factory;
-    }
-
-    @Bean
     public Queue gameEventsQueue() {
         Map<String, Object> args = new HashMap<>();
         args.put("x-message-ttl", 300000);
