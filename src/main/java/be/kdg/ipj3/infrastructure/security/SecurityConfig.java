@@ -67,7 +67,6 @@ public class SecurityConfig {
 
                         .requestMatchers("POST", "/api/tictactoe").hasRole("SERVICE")
 
-                        // Use specific patterns instead of ** in the middle
                         .requestMatchers("POST", "/api/tictactoe/*/move").hasRole("PLAYER")
                         .requestMatchers("POST", "/api/tictactoe/*/*/move").hasRole("PLAYER")
 
