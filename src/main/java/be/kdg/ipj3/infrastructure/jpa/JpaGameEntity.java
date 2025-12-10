@@ -64,20 +64,21 @@ public class JpaGameEntity {
         return new JpaGameEntity(
                 game.getId(),
                 encodeBoard(game.getBoard()),
-                game.getPlayerX().id(),
+                game.getPlayerX().id().id(),
                 game.getPlayerX().isHuman(),
-                game.getPlayerO().id(),
+                game.getPlayerO().id().id(),
                 game.getPlayerO().isHuman(),
-                game.getCurrentPlayer().id(),
+                game.getCurrentPlayer().id().id(),
                 game.getStatus(),
                 game.getDifficulty(),
-                game.getWinner() == null ? null : game.getWinner().id(),
+                game.getWinner() == null ? null : game.getWinner().id().id(),
                 game.getLastActivity());
     }
 
     public Game toDomain() {
-        Player playerX = new Player(this.playerXId, this.playerXHuman);
-        Player playerO = new Player(this.playerOId, this.playerOHuman);
+        //TODO edit the name here
+        Player playerX = new Player(new UserId(this.playerXId), this.playerXHuman, "playerX");
+        Player playerO = new Player(new UserId(this.playerOId), this.playerOHuman, "PlayerO");
 
         Player currentPlayer = this.playerXId.equals(this.currentPlayerId)
                 ? playerX

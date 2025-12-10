@@ -38,7 +38,7 @@ public class MessageSendHandler {
             }
 
             AchievementCompletedDto dto = new AchievementCompletedDto(
-                    winner.id(),
+                    winner.id().id(),
                     game.getId(),
                     achievementCode,
                     Instant.now()

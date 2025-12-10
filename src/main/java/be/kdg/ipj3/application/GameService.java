@@ -2,6 +2,7 @@ package be.kdg.ipj3.application;
 
 import be.kdg.ipj3.api.dto.AiGameStateDto;
 import be.kdg.ipj3.api.dto.AiResponseDto;
+import be.kdg.ipj3.api.dto.PlatformPlayerDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
@@ -26,9 +27,9 @@ public class GameService {
     }
 
     @Transactional
-    public Game createGame(Difficulty difficulty, List<UUID> players) {
-        Player px = Player.human(players.getFirst());
-        Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast());
+    public Game createGame(Difficulty difficulty, List<PlatformPlayerDto> players) {
+        Player px = Player.human(players.getFirst().id());
+        Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast().id());
 
         Game game = new Game(difficulty, px, po);
         gameRepository.save(game);
@@ -79,7 +80,7 @@ public class GameService {
             }
 
             int[] aiMove = getAiMoveWithFallback(game);
-            game.move(currentPlayer.id(), aiMove[0], aiMove[1]);
+            game.move(currentPlayer.id().id(), aiMove[0], aiMove[1]);
 
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
@@ -185,7 +186,7 @@ public class GameService {
                 throw new IllegalStateException("Game is not in progress");
             }
 
-            Player resigningPlayer = game.getPlayerX().id().equals(playerId)
+            Player resigningPlayer = game.getPlayerX().id().id().equals(playerId)
                     ? game.getPlayerX()
                     : game.getPlayerO();
 

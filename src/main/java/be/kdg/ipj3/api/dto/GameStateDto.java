@@ -22,9 +22,9 @@ public record GameStateDto(
                 game.getBoard(),
                 PlayerDto.fromDomain(game.getPlayerX()),
                 PlayerDto.fromDomain(game.getPlayerO()),
-                game.getCurrentPlayer().id(),
+                game.getCurrentPlayer().id().id(),
                 game.getStatus().name(),
-                game.getWinner() != null ? game.getWinner().id() : null
+                game.getWinner() != null ? game.getWinner().id().id() : null
         );
     }
 
@@ -33,7 +33,7 @@ public record GameStateDto(
             @NotNull boolean isHuman
     ) {
         public static PlayerDto fromDomain(Player player) {
-            return new PlayerDto(player.id(), player.isHuman());
+            return new PlayerDto(player.id().id(), player.isHuman());
         }
     }
 }
