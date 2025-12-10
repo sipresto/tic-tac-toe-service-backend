@@ -5,6 +5,7 @@ import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.messaging.config.RabbitMQTopology;
 import be.kdg.ipj3.infrastructure.messaging.dto.AchievementCompletedDto;
 import be.kdg.ipj3.infrastructure.messaging.dto.GameResultMessageDto;
+import be.kdg.ipj3.infrastructure.messaging.dto.TurnNotificationDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -50,5 +51,18 @@ public class MessageSendHandler {
                     dto
             );
         }
+    }
+
+    public void sendTurnNotification(Game game) {
+        TurnNotificationDto dto = new TurnNotificationDto(
+                game.getCurrentPlayer().id().id(),
+                "It's your turn in tic-tac-toe!"
+        );
+
+        this.rabbitTemplate.convertAndSend(
+                RabbitMQTopology.TURN_NOTIFICATIONS_EXCHANGE,
+                "turn.notification.tictactoe",
+                dto
+        );
     }
 }

@@ -59,6 +59,11 @@ public class GameService {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
             }
+            else {
+                if (game.getCurrentPlayer().isHuman()) {
+                    messageSendHandler.sendTurnNotification(game);
+                }
+            }
 
             gameRepository.save(game);
             return game;
@@ -85,6 +90,9 @@ public class GameService {
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
+            }
+            else {
+                messageSendHandler.sendTurnNotification(game);
             }
 
             if (game.getStatus() != GameStatus.IN_PROGRESS) {
