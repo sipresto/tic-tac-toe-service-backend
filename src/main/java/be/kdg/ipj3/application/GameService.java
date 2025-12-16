@@ -210,7 +210,6 @@ public class GameService {
 
             removeGame(gameId);
 
-
             return game;
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
