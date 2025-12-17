@@ -28,6 +28,7 @@ public record RegisterGameDto(
     private static final String DESCRIPTION = "Tic Tac Toe is a puzzle game for two players, \"X\" and \"O\", who take turns marking spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a horizontal, vertical, or diagonal row wins the game.";
     private static final BigDecimal PRICE = BigDecimal.valueOf(1.99);
 
+    private static final String FRONTEND_URL = "/games/tictactoe";
     private static final String BACKEND_URL = "/api/games/tictactoe";
 
     private static final String RULES = """
@@ -121,14 +122,14 @@ public record RegisterGameDto(
             )
     );
 
-    public static RegisterGameDto create(String frontendUrl) {
+    public static RegisterGameDto create() {
         return new RegisterGameDto(
                 GAME_ID,
                 NAME,
                 DESCRIPTION,
                 PRICE,
                 BACKEND_URL,
-                frontendUrl,
+                FRONTEND_URL,
                 RULES,
                 ACHIEVEMENTS,
                 CATEGORIES,

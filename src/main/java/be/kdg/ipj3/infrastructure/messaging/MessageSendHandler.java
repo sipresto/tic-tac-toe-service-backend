@@ -20,9 +20,6 @@ public class MessageSendHandler {
 
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${game.base-url}")
-    private String frontendUrl;
-
     public MessageSendHandler(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -30,7 +27,7 @@ public class MessageSendHandler {
     public void sendRegistration() {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.register.tictactoe",
-                RegisterGameDto.create(frontendUrl));
+                RegisterGameDto.create());
     }
 
     @EventListener(ApplicationReadyEvent.class)
