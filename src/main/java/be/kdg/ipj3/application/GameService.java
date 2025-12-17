@@ -1,8 +1,8 @@
 package be.kdg.ipj3.application;
 
-import be.kdg.ipj3.api.dto.AiGameStateDto;
-import be.kdg.ipj3.api.dto.AiResponseDto;
-import be.kdg.ipj3.api.dto.PlatformPlayerDto;
+import be.kdg.ipj3.api.dto.GameStartRequestDto;
+import be.kdg.ipj3.infrastructure.ai.dto.AiGameStateDto;
+import be.kdg.ipj3.infrastructure.ai.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
@@ -27,13 +27,14 @@ public class GameService {
     }
 
     @Transactional
-    public Game createGame(Difficulty difficulty, List<PlatformPlayerDto> players) {
-        Player px = Player.human(players.getFirst().id());
-        Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast().id());
+    public void createGame(UUID gameId, List<Player> players, Difficulty difficulty) {
+        Player px = players.getFirst();
+        Player po = (players.size() == 1)
+                ? Player.ai(difficulty)
+                : players.getLast();
 
-        Game game = new Game(difficulty, px, po);
+        Game game = new Game(gameId, difficulty, px, po);
         gameRepository.save(game);
-        return game;
     }
 
     public Game getGame(UUID gameId) {
@@ -45,7 +46,7 @@ public class GameService {
     }
 
     @Transactional
-    public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
+    public Game applyMove(UUID gameId, String playerId, int row, int col) {
         try {
             Game game = getGame(gameId);
 
@@ -164,6 +165,7 @@ public class GameService {
                 throw new IllegalStateException("Game is not finished yet");
             }
 
+            // TODO: Send new game created message event with rabbit
             Game newGame = new Game(
                     oldGame.getDifficulty(),
                     oldGame.getPlayerO(),

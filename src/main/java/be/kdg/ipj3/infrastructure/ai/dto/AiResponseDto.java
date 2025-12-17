@@ -1,4 +1,4 @@
-package be.kdg.ipj3.api.dto;
+package be.kdg.ipj3.infrastructure.ai.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

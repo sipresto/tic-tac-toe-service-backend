@@ -8,6 +8,7 @@ import be.kdg.ipj3.infrastructure.messaging.dto.GameResultMessageDto;
 import be.kdg.ipj3.infrastructure.messaging.dto.RegisterGameDto;
 import be.kdg.ipj3.infrastructure.messaging.dto.TurnNotificationDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ public class MessageSendHandler {
 
     private final RabbitTemplate rabbitTemplate;
 
+    @Value("${game.base-url}")
+    private String frontendUrl;
+
     public MessageSendHandler(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -26,7 +30,7 @@ public class MessageSendHandler {
     public void sendRegistration() {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.register.tictactoe",
-                RegisterGameDto.create());
+                RegisterGameDto.create(frontendUrl));
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -35,13 +39,13 @@ public class MessageSendHandler {
     }
 
     public void sendGameResult(Game game){
-        this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
+        /*this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.result.tictactoe",
-                GameResultMessageDto.fromDomain(game));
+                GameResultMessageDto.fromDomain(game));*/
     }
 
     public void sendAchievementCompleted(Game game) {
-        Player winner = game.getWinner();
+        /*Player winner = game.getWinner();
 
         if (winner != null && winner.isHuman()) {
             String achievementCode;
@@ -64,11 +68,11 @@ public class MessageSendHandler {
                     "achievement.completed.tictactoe",
                     dto
             );
-        }
+        }*/
     }
 
     public void sendTurnNotification(Game game) {
-        TurnNotificationDto dto = new TurnNotificationDto(
+        /*TurnNotificationDto dto = new TurnNotificationDto(
                 game.getCurrentPlayer().id().id(),
                 "It's your turn in tic-tac-toe!"
         );
@@ -77,6 +81,6 @@ public class MessageSendHandler {
                 RabbitMQTopology.TURN_NOTIFICATIONS_EXCHANGE,
                 "turn.notification.tictactoe",
                 dto
-        );
+        );*/
     }
 }

@@ -9,11 +9,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static be.kdg.ipj3.infrastructure.config.GameInfo.GAME_ID;
+
 public record RegisterGameDto(
         @NotNull UUID id,
         @NotBlank String name,
         String description,
         BigDecimal price,
+        @NotBlank String backendUrl,
         @NotBlank String frontendUrl,
         @Size(max = 2000) String rules,
         List<RegisterAchievementDto> achievements,
@@ -21,12 +24,12 @@ public record RegisterGameDto(
         String imageUrl,
         @NotNull Instant timestamp
 ) {
-    private static final UUID GAME_ID = UUID.fromString("4475bbce-f608-47c2-978b-4492389f2f12");
     private static final String NAME = "Tic Tac Toe";
     private static final String DESCRIPTION = "Tic Tac Toe is a puzzle game for two players, \"X\" and \"O\", who take turns marking spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a horizontal, vertical, or diagonal row wins the game.";
     private static final BigDecimal PRICE = BigDecimal.valueOf(1.99);
-    // TODO: url aanpassen na nginx rework
-    private static final String FRONTEND_URL = "/games/tictactoe";
+
+    private static final String BACKEND_URL = "/api/games/tictactoe";
+
     private static final String RULES = """
             Two players take turns.
             Players alternate marking empty spaces in the grid with their assigned mark (X or O).
@@ -118,14 +121,14 @@ public record RegisterGameDto(
             )
     );
 
-
-    public static RegisterGameDto create() {
+    public static RegisterGameDto create(String frontendUrl) {
         return new RegisterGameDto(
                 GAME_ID,
                 NAME,
                 DESCRIPTION,
                 PRICE,
-                FRONTEND_URL,
+                BACKEND_URL,
+                frontendUrl,
                 RULES,
                 ACHIEVEMENTS,
                 CATEGORIES,

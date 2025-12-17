@@ -6,6 +6,8 @@ import be.kdg.ipj3.domain.Game;
 import java.time.Instant;
 import java.util.*;
 
+import static be.kdg.ipj3.infrastructure.config.GameInfo.GAME_ID;
+
 public record GameResultMessageDto(
         UUID gameId,
         List<UUID> players,
@@ -17,7 +19,7 @@ public record GameResultMessageDto(
 ) {
 
     public static GameResultMessageDto fromDomain(Game game) {
-        List<UUID> players = new ArrayList<>();
+        /*List<UUID> players = new ArrayList<>();
         Map<String, Map<String, Object>> metadata = new HashMap<>();
 
         if (game.getPlayerX().isHuman()) {
@@ -29,9 +31,8 @@ public record GameResultMessageDto(
             metadata.put(game.getPlayerO().id().toString(), Map.of("playerSide", "O"));
         }
 
-        // TODO: this is the gameid of TTT in data.sql, shouldn't be used like this
         return new GameResultMessageDto(
-                UUID.fromString("c3c1d2b0-82fa-43a7-b326-0eb96136ecbc"),
+                GAME_ID,
                 players,
                 game.getWinner() != null && game.getWinner().isHuman()
                         ? game.getWinner().id().id()
@@ -44,7 +45,8 @@ public record GameResultMessageDto(
                         : SessionResult.AI_WIN),
                 game.getLastActivity(),
                 metadata
-        );
+        );*/
+        return null;
     }
 
     public enum SessionResult {
