@@ -1,12 +1,12 @@
 package be.kdg.ipj3.api;
 
-import be.kdg.ipj3.api.dto.*;
+import be.kdg.ipj3.api.dto.GameStartRequestDto;
+import be.kdg.ipj3.api.dto.GameStateDto;
+import be.kdg.ipj3.api.dto.MoveDto;
 import be.kdg.ipj3.application.GameService;
 import be.kdg.ipj3.domain.Game;
 import be.kdg.ipj3.domain.Player;
-import be.kdg.ipj3.domain.UserId;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -81,9 +81,9 @@ public class GameController {
     @PostMapping("/{gameId}/resign")
     public ResponseEntity<GameStateDto> resign(
             @PathVariable UUID gameId,
-            @Valid @RequestBody ResignRequestDto dto
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        Game game = gameService.resign(gameId, dto.playerId());
+        Game game = gameService.resign(gameId, jwt.getSubject());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 }

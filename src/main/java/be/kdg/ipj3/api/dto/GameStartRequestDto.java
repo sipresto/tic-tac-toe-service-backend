@@ -16,7 +16,6 @@ public record GameStartRequestDto(
 ) {
     public record PlatformPlayerDto(
             @NotBlank String keycloakId,
-            @NotNull String username,
             @NotNull String displayName
     ) {
     }

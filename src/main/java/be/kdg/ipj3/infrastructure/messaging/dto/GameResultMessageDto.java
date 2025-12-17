@@ -4,55 +4,43 @@ import be.kdg.ipj3.domain.Difficulty;
 import be.kdg.ipj3.domain.Game;
 
 import java.time.Instant;
-import java.util.*;
-
-import static be.kdg.ipj3.infrastructure.config.GameInfo.GAME_ID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public record GameResultMessageDto(
         UUID gameId,
-        List<UUID> players,
-        UUID winnerId,
+        List<String> players,
+        String winnerId,
         Difficulty difficulty,
-        SessionResult sessionResult,
-        Instant completedAt,
-        Map<String, Map<String, Object>> metadata
+        String status,
+        Instant completedAt
 ) {
 
     public static GameResultMessageDto fromDomain(Game game) {
-        /*List<UUID> players = new ArrayList<>();
-        Map<String, Map<String, Object>> metadata = new HashMap<>();
+        List<String> players = new ArrayList<>();
 
         if (game.getPlayerX().isHuman()) {
             players.add(game.getPlayerX().id().id());
-            metadata.put(game.getPlayerX().id().toString(), Map.of("playerSide", "X"));
         }
         if (game.getPlayerO().isHuman()) {
             players.add(game.getPlayerO().id().id());
-            metadata.put(game.getPlayerO().id().toString(), Map.of("playerSide", "O"));
         }
 
         return new GameResultMessageDto(
-                GAME_ID,
+                game.getId(),
                 players,
                 game.getWinner() != null && game.getWinner().isHuman()
                         ? game.getWinner().id().id()
                         : null,
                 game.getDifficulty(),
                 game.getWinner() == null
-                        ? SessionResult.DRAW
+                        ? "DRAW"
                         : (game.getWinner().isHuman()
-                        ? SessionResult.PLAYER_WIN
-                        : SessionResult.AI_WIN),
-                game.getLastActivity(),
-                metadata
-        );*/
-        return null;
-    }
-
-    public enum SessionResult {
-        PLAYER_WIN,
-        AI_WIN,
-        DRAW
+                        ? "PLAYER_WIN"
+                        : "AI_WIN"),
+                game.getLastActivity()
+        );
     }
 }
 

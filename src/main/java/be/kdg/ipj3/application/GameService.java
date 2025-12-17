@@ -1,10 +1,9 @@
 package be.kdg.ipj3.application;
 
-import be.kdg.ipj3.api.dto.GameStartRequestDto;
-import be.kdg.ipj3.infrastructure.ai.dto.AiGameStateDto;
-import be.kdg.ipj3.infrastructure.ai.dto.AiResponseDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
+import be.kdg.ipj3.infrastructure.ai.dto.AiGameStateDto;
+import be.kdg.ipj3.infrastructure.ai.dto.AiResponseDto;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
 import be.kdg.ipj3.infrastructure.messaging.MessageSendHandler;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -59,8 +58,7 @@ public class GameService {
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
-            }
-            else {
+            } else {
                 if (game.getCurrentPlayer().isHuman()) {
                     messageSendHandler.sendTurnNotification(game);
                 }
@@ -91,8 +89,7 @@ public class GameService {
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
-            }
-            else {
+            } else {
                 messageSendHandler.sendTurnNotification(game);
             }
 
@@ -188,7 +185,7 @@ public class GameService {
     }
 
     @Transactional
-    public Game resign(UUID gameId, UUID playerId) {
+    public Game resign(UUID gameId, String playerId) {
         try {
             Game game = getGame(gameId);
 

@@ -53,7 +53,7 @@ public class JpaGameEntity {
 
     public JpaGameEntity(UUID id, String board, String playerXId, boolean playerXHuman, String playerXName,
                          String playerOId, boolean playerOHuman, String playerOName, String currentPlayerId,
-                         GameStatus status, Difficulty difficulty, String winnerId,  Instant lastActivity) {
+                         GameStatus status, Difficulty difficulty, String winnerId, Instant lastActivity) {
         this.id = id;
         this.board = board;
         this.playerXId = playerXId;
@@ -100,7 +100,7 @@ public class JpaGameEntity {
                 : (this.playerXId.equals(this.winnerId) ? playerX : playerO);
 
         return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer,
-                this.status, this.difficulty, winner,  this.lastActivity);
+                this.status, this.difficulty, winner, this.lastActivity);
     }
 
     private static String encodeBoard(CellValue[][] board) {
