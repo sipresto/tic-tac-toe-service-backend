@@ -56,7 +56,7 @@ public class GameController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody MoveDto dto
     ) {
-        Game game = gameService.applyMove(gameId, jwt.getId(), dto.row(), dto.col());
+        Game game = gameService.applyMove(gameId, jwt.getSubject(), dto.row(), dto.col());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 
