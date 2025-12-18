@@ -12,9 +12,9 @@ public record GameStateDto(
         @NotNull CellValue[][] board,
         @NotNull PlayerDto playerX,
         @NotNull PlayerDto playerO,
-        @NotNull UUID currentPlayer,
+        @NotNull String currentPlayer,
         @NotNull String status,
-        UUID winner
+        String winner
 ) {
     public static GameStateDto fromDomain(Game game) {
         return new GameStateDto(
@@ -29,7 +29,7 @@ public record GameStateDto(
     }
 
     public record PlayerDto(
-            @NotNull UUID id,
+            @NotNull String id,
             @NotNull boolean isHuman
     ) {
         public static PlayerDto fromDomain(Player player) {

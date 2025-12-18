@@ -28,6 +28,19 @@ public class Game {
         this.lastActivity = lastActivity;
     }
 
+    public Game(UUID gameId, Difficulty difficulty, Player playerX, Player playerO) {
+        this.id = gameId;
+        this.playerX = playerX;
+        this.playerO = playerO;
+        this.currentPlayer = playerX;
+        this.status = GameStatus.IN_PROGRESS;
+        this.difficulty = difficulty;
+        for (int row = 0; row < 3; row++) {
+            Arrays.fill(board[row], CellValue.EMPTY);
+        }
+        this.lastActivity = Instant.now();
+    }
+
     public Game(Difficulty difficulty, Player playerX, Player playerO) {
         this.id = UUID.randomUUID();
         this.playerX = playerX;
@@ -81,7 +94,7 @@ public class Game {
         currentPlayer = (currentPlayer == playerX) ? playerO : playerX;
     }
 
-    public void move(UUID playerId, int row, int col) {
+    public void move(String playerId, int row, int col) {
         if (status != GameStatus.IN_PROGRESS) {
             throw new IllegalStateException("Game is not in progress");
         }

@@ -1,10 +1,9 @@
 package be.kdg.ipj3.application;
 
-import be.kdg.ipj3.api.dto.AiGameStateDto;
-import be.kdg.ipj3.api.dto.AiResponseDto;
-import be.kdg.ipj3.api.dto.PlatformPlayerDto;
 import be.kdg.ipj3.domain.*;
 import be.kdg.ipj3.infrastructure.ai.AiClient;
+import be.kdg.ipj3.infrastructure.ai.dto.AiGameStateDto;
+import be.kdg.ipj3.infrastructure.ai.dto.AiResponseDto;
 import be.kdg.ipj3.infrastructure.jpa.GameRepository;
 import be.kdg.ipj3.infrastructure.messaging.MessageSendHandler;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -27,13 +26,14 @@ public class GameService {
     }
 
     @Transactional
-    public Game createGame(Difficulty difficulty, List<PlatformPlayerDto> players) {
-        Player px = Player.human(players.getFirst().id());
-        Player po = (players.size() == 1) ? Player.ai() : Player.human(players.getLast().id());
+    public void createGame(UUID gameId, List<Player> players, Difficulty difficulty) {
+        Player px = players.getFirst();
+        Player po = (players.size() == 1)
+                ? Player.ai(difficulty)
+                : players.getLast();
 
-        Game game = new Game(difficulty, px, po);
+        Game game = new Game(gameId, difficulty, px, po);
         gameRepository.save(game);
-        return game;
     }
 
     public Game getGame(UUID gameId) {
@@ -45,7 +45,7 @@ public class GameService {
     }
 
     @Transactional
-    public Game applyMove(UUID gameId, UUID playerId, int row, int col) {
+    public Game applyMove(UUID gameId, String playerId, int row, int col) {
         try {
             Game game = getGame(gameId);
 
@@ -58,8 +58,7 @@ public class GameService {
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
-            }
-            else {
+            } else {
                 if (game.getCurrentPlayer().isHuman()) {
                     messageSendHandler.sendTurnNotification(game);
                 }
@@ -90,8 +89,7 @@ public class GameService {
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
                 messageSendHandler.sendGameResult(game);
                 messageSendHandler.sendAchievementCompleted(game);
-            }
-            else {
+            } else {
                 messageSendHandler.sendTurnNotification(game);
             }
 
@@ -164,6 +162,7 @@ public class GameService {
                 throw new IllegalStateException("Game is not finished yet");
             }
 
+            // TODO: Send new game created message event with rabbit
             Game newGame = new Game(
                     oldGame.getDifficulty(),
                     oldGame.getPlayerO(),
@@ -186,7 +185,7 @@ public class GameService {
     }
 
     @Transactional
-    public Game resign(UUID gameId, UUID playerId) {
+    public Game resign(UUID gameId, String playerId) {
         try {
             Game game = getGame(gameId);
 

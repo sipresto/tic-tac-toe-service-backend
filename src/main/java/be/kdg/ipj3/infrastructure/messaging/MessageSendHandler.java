@@ -34,7 +34,7 @@ public class MessageSendHandler {
         sendRegistration();
     }
 
-    public void sendGameResult(Game game){
+    public void sendGameResult(Game game) {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.result.tictactoe",
                 GameResultMessageDto.fromDomain(game));
