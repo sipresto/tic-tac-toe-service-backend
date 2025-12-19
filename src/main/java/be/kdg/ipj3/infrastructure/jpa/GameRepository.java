@@ -2,8 +2,6 @@ package be.kdg.ipj3.infrastructure.jpa;
 
 import be.kdg.ipj3.domain.Game;
 import be.kdg.ipj3.domain.IGameRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

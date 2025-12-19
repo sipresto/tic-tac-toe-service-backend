@@ -1,16 +1,20 @@
 package be.kdg.ipj3.api;
 
-import be.kdg.ipj3.api.dto.*;
+import be.kdg.ipj3.api.dto.GameStartRequestDto;
+import be.kdg.ipj3.api.dto.GameStateDto;
+import be.kdg.ipj3.api.dto.MoveDto;
 import be.kdg.ipj3.application.GameService;
 import be.kdg.ipj3.domain.Game;
+import be.kdg.ipj3.domain.Player;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,30 +22,24 @@ import java.util.UUID;
 public class GameController {
     private final GameService gameService;
 
-    @Value("${game.base-url}")
-    private String gameBaseUrl;
-
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
 
     @PostMapping
-    public ResponseEntity<GameCreatedResponseDto> createGame(
+    public ResponseEntity<Void> createGame(
             @Valid @RequestBody GameStartRequestDto dto
     ) {
-        Game game = gameService.createGame(dto.difficulty(), dto.players());
-        String gameUrl;
-        if (!gameBaseUrl.contains("games")) {
-            gameUrl = gameBaseUrl + "/games/tictactoe/" + game.getId();
-        }
-        else {
-            gameUrl = gameBaseUrl + game.getId();
-        }
-        GameCreatedResponseDto response = new GameCreatedResponseDto(gameUrl);
+        List<Player> players = dto.players().stream()
+                .map(playerDto -> Player.human(
+                        playerDto.keycloakId(),
+                        playerDto.displayName()
+                ))
+                .toList();
 
-        URI location = URI.create("/api/games/tictactoe/" + game.getId());
+        gameService.createGame(dto.gameId(), players, dto.difficulty());
 
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{gameId}")
@@ -58,7 +56,7 @@ public class GameController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody MoveDto dto
     ) {
-        Game game = gameService.applyMove(gameId, dto.playerId(), dto.row(), dto.col());
+        Game game = gameService.applyMove(gameId, jwt.getSubject(), dto.row(), dto.col());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 
@@ -83,9 +81,9 @@ public class GameController {
     @PostMapping("/{gameId}/resign")
     public ResponseEntity<GameStateDto> resign(
             @PathVariable UUID gameId,
-            @Valid @RequestBody ResignRequestDto dto
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        Game game = gameService.resign(gameId, dto.playerId());
+        Game game = gameService.resign(gameId, jwt.getSubject());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 }

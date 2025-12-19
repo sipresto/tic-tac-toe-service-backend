@@ -5,8 +5,11 @@ import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.messaging.config.RabbitMQTopology;
 import be.kdg.ipj3.infrastructure.messaging.dto.AchievementCompletedDto;
 import be.kdg.ipj3.infrastructure.messaging.dto.GameResultMessageDto;
+import be.kdg.ipj3.infrastructure.messaging.dto.RegisterGameDto;
 import be.kdg.ipj3.infrastructure.messaging.dto.TurnNotificationDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -20,7 +23,18 @@ public class MessageSendHandler {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void sendGameResult(Game game){
+    public void sendRegistration() {
+        this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
+                "game.register.tictactoe",
+                RegisterGameDto.create());
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onStartup() {
+        sendRegistration();
+    }
+
+    public void sendGameResult(Game game) {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.result.tictactoe",
                 GameResultMessageDto.fromDomain(game));

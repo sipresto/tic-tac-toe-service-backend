@@ -16,19 +16,25 @@ public class JpaGameEntity {
     private String board;
 
     @Column(nullable = false)
-    private UUID playerXId;
+    private String playerXId;
 
     @Column(nullable = false)
     private boolean playerXHuman;
 
     @Column(nullable = false)
-    private UUID playerOId;
+    private String playerXName;
+
+    @Column(nullable = false)
+    private String playerOId;
 
     @Column(nullable = false)
     private boolean playerOHuman;
 
     @Column(nullable = false)
-    private UUID currentPlayerId;
+    private String playerOName;
+
+    @Column(nullable = false)
+    private String currentPlayerId;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
@@ -37,7 +43,7 @@ public class JpaGameEntity {
     @Enumerated(value = EnumType.STRING)
     private Difficulty difficulty;
 
-    private UUID winnerId;
+    private String winnerId;
 
     @Column(nullable = false)
     private Instant lastActivity;
@@ -45,14 +51,17 @@ public class JpaGameEntity {
     public JpaGameEntity() {
     } // for JPA
 
-    public JpaGameEntity(UUID id, String board, UUID playerXId, boolean playerXHuman, UUID playerOId, boolean playerOHuman,
-                         UUID currentPlayerId, GameStatus status, Difficulty difficulty, UUID winnerId,  Instant lastActivity) {
+    public JpaGameEntity(UUID id, String board, String playerXId, boolean playerXHuman, String playerXName,
+                         String playerOId, boolean playerOHuman, String playerOName, String currentPlayerId,
+                         GameStatus status, Difficulty difficulty, String winnerId, Instant lastActivity) {
         this.id = id;
         this.board = board;
         this.playerXId = playerXId;
         this.playerXHuman = playerXHuman;
+        this.playerXName = playerXName;
         this.playerOId = playerOId;
         this.playerOHuman = playerOHuman;
+        this.playerOName = playerOName;
         this.currentPlayerId = currentPlayerId;
         this.status = status;
         this.difficulty = difficulty;
@@ -66,8 +75,10 @@ public class JpaGameEntity {
                 encodeBoard(game.getBoard()),
                 game.getPlayerX().id().id(),
                 game.getPlayerX().isHuman(),
+                game.getPlayerX().name(),
                 game.getPlayerO().id().id(),
                 game.getPlayerO().isHuman(),
+                game.getPlayerO().name(),
                 game.getCurrentPlayer().id().id(),
                 game.getStatus(),
                 game.getDifficulty(),
@@ -77,8 +88,8 @@ public class JpaGameEntity {
 
     public Game toDomain() {
         //TODO edit the name here
-        Player playerX = new Player(new UserId(this.playerXId), this.playerXHuman, "playerX");
-        Player playerO = new Player(new UserId(this.playerOId), this.playerOHuman, "PlayerO");
+        Player playerX = new Player(new UserId(this.playerXId), this.playerXHuman, this.playerXName);
+        Player playerO = new Player(new UserId(this.playerOId), this.playerOHuman, this.playerOName);
 
         Player currentPlayer = this.playerXId.equals(this.currentPlayerId)
                 ? playerX
@@ -89,7 +100,7 @@ public class JpaGameEntity {
                 : (this.playerXId.equals(this.winnerId) ? playerX : playerO);
 
         return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer,
-                this.status, this.difficulty, winner,  this.lastActivity);
+                this.status, this.difficulty, winner, this.lastActivity);
     }
 
     private static String encodeBoard(CellValue[][] board) {
