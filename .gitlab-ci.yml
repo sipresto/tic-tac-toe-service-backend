@@ -33,21 +33,17 @@ maven-package-job:
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
-  needs:
-    - job: compile-job
-      artifacts: true
-      optional: true
   before_script:
     - apk update && apk add --no-cache docker
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - chmod +x ./mvnw
   script:
-    - ./mvnw spring-boot:build-image -Dimage=tic-tac-toe-service-backend:0.0.1-SNAPSHOT -DskipTests
-
-    - docker tag tic-tac-toe-service-backend:0.0.1-SNAPSHOT $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG}
+    - >
+      ./mvnw spring-boot:build-image
+      -Dimage=$CI_REGISTRY_IMAGE/tic-tac-toe-service-backend:0.0.1-SNAPSHOT
+      -DskipTests
+      -Dspring-boot.build-image.environment=SPRING_PROFILES_ACTIVE=deploy
     - docker tag tic-tac-toe-service-backend:0.0.1-SNAPSHOT $CI_REGISTRY_IMAGE:latest
-
-    - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_TAG}
     - docker push $CI_REGISTRY_IMAGE:latest
   rules:
     - if: '$CI_COMMIT_TAG'
