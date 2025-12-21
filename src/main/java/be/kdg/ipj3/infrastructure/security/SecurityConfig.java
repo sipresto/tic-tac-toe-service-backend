@@ -3,6 +3,7 @@ package be.kdg.ipj3.infrastructure.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -55,7 +56,26 @@ public class SecurityConfig {
         return jwtDecoder;
     }
 
+    // Public endpoints
     @Bean
+    @Order(1)
+    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(
+                        "/api/platform/public/**"
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+        return http.build();
+    }
+
+    // Secured endpoints
+    @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -63,16 +83,14 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("POST", "/api/games/tictactoe").hasRole("SERVICE")
 
-                        .requestMatchers("POST", "/api/tictactoe").hasRole("SERVICE")
+                        .requestMatchers("POST", "/api/games/tictactoe/*/move").hasRole("PLAYER")
+                        .requestMatchers("POST", "/api/games/tictactoe/*/*/move").hasRole("PLAYER")
 
-                        .requestMatchers("POST", "/api/tictactoe/*/move").hasRole("PLAYER")
-                        .requestMatchers("POST", "/api/tictactoe/*/*/move").hasRole("PLAYER")
-
-                        .requestMatchers("GET", "/api/tictactoe").hasAnyRole("PLAYER", "SERVICE")
-                        .requestMatchers("GET", "/api/tictactoe/*").hasAnyRole("PLAYER", "SERVICE")
-                        .requestMatchers("GET", "/api/tictactoe/*/*").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("GET", "/api/games/tictactoe").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("GET", "/api/games/tictactoe/*").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("GET", "/api/games/tictactoe/*/*").hasAnyRole("PLAYER", "SERVICE")
 
                         .anyRequest().authenticated()
                 )
@@ -99,7 +117,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
-                "http://localhost"
+                "http://localhost",
+                "https://samenbeslist.be"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

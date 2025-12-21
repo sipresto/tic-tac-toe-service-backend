@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/tictactoe")
+@RequestMapping("/api/games/tictactoe")
 public class GameController {
     private final GameService gameService;
 
@@ -74,7 +74,7 @@ public class GameController {
     ) {
         Game newGame = gameService.createRematch(gameId);
         GameStateDto state = GameStateDto.fromDomain(newGame);
-        URI location = URI.create("/api/tictactoe/" + newGame.getId());
+        URI location = URI.create("/api/games/tictactoe/" + newGame.getId());
         return ResponseEntity.created(location).body(state);
     }
 
