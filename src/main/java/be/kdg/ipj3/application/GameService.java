@@ -162,7 +162,6 @@ public class GameService {
                 throw new IllegalStateException("Game is not finished yet");
             }
 
-            // TODO: Send new game created message event with rabbit
             Game newGame = new Game(
                     oldGame.getDifficulty(),
                     oldGame.getPlayerO(),
@@ -171,8 +170,11 @@ public class GameService {
 
             gameRepository.save(newGame);
 
+            messageSendHandler.sendRematch(oldGameId, newGame.getId());
+
             oldGame.setNewId(newGame.getId());
             gameRepository.save(oldGame);
+
             return newGame;
 
         } catch (ObjectOptimisticLockingFailureException e) {
@@ -253,5 +255,4 @@ public class GameService {
             throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
         }
     }
-
 }

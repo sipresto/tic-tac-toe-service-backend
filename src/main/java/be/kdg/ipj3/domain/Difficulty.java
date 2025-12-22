@@ -9,4 +9,12 @@ public enum Difficulty {
     public String toString() {
         return name().toLowerCase();
     }
+
+    public String getDisplayName() {
+        return switch (this) {
+            case EASY -> "Easy";
+            case HARD -> "Medium";
+            case IMPOSSIBLE -> "Hard";
+        };
+    }
 }

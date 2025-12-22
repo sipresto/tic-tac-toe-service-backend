@@ -10,7 +10,7 @@ public record Player(
     }
 
     public static Player ai(Difficulty difficulty) {
-        String name = "Bot (" + difficulty + ")";
+        String name = "Bot (" + difficulty.getDisplayName() + ")";
         return new Player(new UserId(name), false, name);
     }
 }

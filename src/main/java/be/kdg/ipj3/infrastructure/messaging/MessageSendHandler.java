@@ -3,16 +3,14 @@ package be.kdg.ipj3.infrastructure.messaging;
 import be.kdg.ipj3.domain.Game;
 import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.messaging.config.RabbitMQTopology;
-import be.kdg.ipj3.infrastructure.messaging.dto.AchievementCompletedDto;
-import be.kdg.ipj3.infrastructure.messaging.dto.GameResultMessageDto;
-import be.kdg.ipj3.infrastructure.messaging.dto.RegisterGameDto;
-import be.kdg.ipj3.infrastructure.messaging.dto.TurnNotificationDto;
+import be.kdg.ipj3.infrastructure.messaging.dto.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Component
 public class MessageSendHandler {
@@ -38,6 +36,12 @@ public class MessageSendHandler {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.result.tictactoe",
                 GameResultMessageDto.fromDomain(game));
+    }
+
+    public void sendRematch(UUID oldGameId, UUID newGameId) {
+        this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
+                "game.rematch.tictactoe",
+                new GameRematchDto(oldGameId, newGameId));
     }
 
     public void sendAchievementCompleted(Game game) {
