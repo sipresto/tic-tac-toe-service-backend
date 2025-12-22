@@ -70,9 +70,10 @@ public class GameController {
 
     @PostMapping("/{gameId}/rematch")
     public ResponseEntity<GameStateDto> rematch(
-            @PathVariable UUID gameId
+            @PathVariable UUID gameId,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        Game newGame = gameService.createRematch(gameId);
+        Game newGame = gameService.startRematch(gameId, jwt.getSubject());
         GameStateDto state = GameStateDto.fromDomain(newGame);
         URI location = URI.create("/api/tictactoe/" + newGame.getId());
         return ResponseEntity.created(location).body(state);
@@ -84,6 +85,15 @@ public class GameController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         Game game = gameService.resign(gameId, jwt.getSubject());
+        return ResponseEntity.ok(GameStateDto.fromDomain(game));
+    }
+
+    @PatchMapping("/{gameId}/leave")
+    public ResponseEntity<GameStateDto> leave(
+            @PathVariable UUID gameId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        Game game = gameService.leave(gameId, jwt.getSubject());
         return ResponseEntity.ok(GameStateDto.fromDomain(game));
     }
 }

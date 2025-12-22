@@ -34,6 +34,12 @@ public class JpaGameEntity {
     private String playerOName;
 
     @Column(nullable = false)
+    private boolean playerXWantsRematch;
+
+    @Column(nullable = false)
+    private boolean playerOWantsRematch;
+
+    @Column(nullable = false)
     private String currentPlayerId;
 
     @Enumerated(value = EnumType.STRING)
@@ -48,12 +54,18 @@ public class JpaGameEntity {
     @Column(nullable = false)
     private Instant lastActivity;
 
+    private UUID newId;
+
+    @Column(nullable = false)
+    private boolean leftGame;
+
     public JpaGameEntity() {
     } // for JPA
 
     public JpaGameEntity(UUID id, String board, String playerXId, boolean playerXHuman, String playerXName,
                          String playerOId, boolean playerOHuman, String playerOName, String currentPlayerId,
-                         GameStatus status, Difficulty difficulty, String winnerId, Instant lastActivity) {
+                         GameStatus status, Difficulty difficulty, String winnerId, Instant lastActivity,
+                         boolean playerXWantsRematch, boolean playerOWantsRematch, UUID newId, boolean leftGame) {
         this.id = id;
         this.board = board;
         this.playerXId = playerXId;
@@ -62,11 +74,15 @@ public class JpaGameEntity {
         this.playerOId = playerOId;
         this.playerOHuman = playerOHuman;
         this.playerOName = playerOName;
+        this.playerXWantsRematch = playerXWantsRematch;
+        this.playerOWantsRematch = playerOWantsRematch;
         this.currentPlayerId = currentPlayerId;
         this.status = status;
         this.difficulty = difficulty;
         this.winnerId = winnerId;
         this.lastActivity = lastActivity;
+        this.newId = newId;
+        this.leftGame = leftGame;
     }
 
     public static JpaGameEntity fromDomain(Game game) {
@@ -83,7 +99,12 @@ public class JpaGameEntity {
                 game.getStatus(),
                 game.getDifficulty(),
                 game.getWinner() == null ? null : game.getWinner().id().id(),
-                game.getLastActivity());
+                game.getLastActivity(),
+                game.isPlayerXWantsRematch(),
+                game.isPlayerOWantsRematch(),
+                game.getNewId(),
+                game.hasLeftGame()
+        );
     }
 
     public Game toDomain() {
@@ -99,8 +120,8 @@ public class JpaGameEntity {
                 ? null
                 : (this.playerXId.equals(this.winnerId) ? playerX : playerO);
 
-        return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer,
-                this.status, this.difficulty, winner, this.lastActivity);
+        return new Game(this.id, decodeBoard(this.board), playerX, playerO, currentPlayer, this.status, this.difficulty,
+                winner, this.lastActivity, this.playerXWantsRematch, this.playerOWantsRematch, this.newId, this.leftGame);
     }
 
     private static String encodeBoard(CellValue[][] board) {
