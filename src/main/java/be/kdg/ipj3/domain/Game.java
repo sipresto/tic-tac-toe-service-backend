@@ -9,29 +9,41 @@ public class Game {
     private CellValue[][] board = new CellValue[3][3];
     private final Player playerX;
     private final Player playerO;
+    private boolean playerXWantsRematch;
+    private boolean playerOWantsRematch;
     private Player currentPlayer;
     private GameStatus status;
     private final Difficulty difficulty;
     private Player winner;
     private Instant lastActivity;
+    private UUID newId;
+    private boolean leftGame;
+
 
     public Game(UUID id, CellValue[][] board, Player playerX, Player playerO, Player currentPlayer,
-                GameStatus status, Difficulty difficulty, Player winner, Instant lastActivity) {
+                GameStatus status, Difficulty difficulty, Player winner, Instant lastActivity,
+                boolean playerXWantsRematch, boolean playerOWantsRematch, UUID newId, boolean leftGame) {
         this.id = id;
         this.board = board;
         this.playerX = playerX;
         this.playerO = playerO;
+        this.playerXWantsRematch = playerXWantsRematch;
+        this.playerOWantsRematch = playerOWantsRematch;
         this.currentPlayer = currentPlayer;
         this.status = status;
         this.difficulty = difficulty;
         this.winner = winner;
         this.lastActivity = lastActivity;
+        this.newId = newId;
+        this.leftGame = leftGame;
     }
 
     public Game(UUID gameId, Difficulty difficulty, Player playerX, Player playerO) {
         this.id = gameId;
         this.playerX = playerX;
         this.playerO = playerO;
+        this.playerXWantsRematch = !playerX.isHuman();
+        this.playerOWantsRematch = !playerO.isHuman();
         this.currentPlayer = playerX;
         this.status = GameStatus.IN_PROGRESS;
         this.difficulty = difficulty;
@@ -39,12 +51,16 @@ public class Game {
             Arrays.fill(board[row], CellValue.EMPTY);
         }
         this.lastActivity = Instant.now();
+        this.newId = null;
+        this.leftGame = false;
     }
 
     public Game(Difficulty difficulty, Player playerX, Player playerO) {
         this.id = UUID.randomUUID();
         this.playerX = playerX;
         this.playerO = playerO;
+        this.playerXWantsRematch = !playerX.isHuman();
+        this.playerOWantsRematch = !playerO.isHuman();
         this.currentPlayer = playerX;
         this.status = GameStatus.IN_PROGRESS;
         this.difficulty = difficulty;
@@ -52,6 +68,8 @@ public class Game {
             Arrays.fill(board[row], CellValue.EMPTY);
         }
         this.lastActivity = Instant.now();
+        this.newId = null;
+        this.leftGame = false;
     }
 
     public UUID getId() {
@@ -69,6 +87,19 @@ public class Game {
     public Player getPlayerO() {
         return playerO;
     }
+
+    public boolean isPlayerXWantsRematch() {
+        return this.playerXWantsRematch;
+    }
+
+    public boolean isPlayerOWantsRematch() {
+        return this.playerOWantsRematch;
+    }
+
+    public boolean doRematch() {
+        return playerXWantsRematch && playerOWantsRematch;
+    }
+
 
     public Player getCurrentPlayer() {
         return currentPlayer;
@@ -88,6 +119,18 @@ public class Game {
 
     public Instant getLastActivity() {
         return lastActivity;
+    }
+
+    public UUID getNewId() {
+        return this.newId;
+    }
+
+    public void setNewId(UUID id) {
+        this.newId = id;
+    }
+
+    public boolean hasLeftGame() {
+        return this.leftGame;
     }
 
     private void switchCurrentPlayer() {
@@ -174,5 +217,32 @@ public class Game {
 
         this.status = GameStatus.FINISHED;
         this.winner = winnerByResignation;
+    }
+
+    public void leave(String playerId) {
+        int player = resolvePlayer(playerId);
+        if (player == 1 || player == 2) {
+            leftGame = true;
+        }
+    }
+
+    private int resolvePlayer(String playerId) {
+        if (playerX.isHuman() && playerX.id().id().equals(playerId)) {
+            return 1;
+        }
+        if (playerO.isHuman() && playerO.id().id().equals(playerId)) {
+            return 2;
+        }
+        throw new IllegalStateException("Player is not part of this game");
+    }
+
+    public void playerWantsRematch(String playerId) {
+        if (resolvePlayer(playerId) == 1) {
+            playerXWantsRematch = true;
+        }
+        else if (resolvePlayer(playerId) == 2) {
+            playerOWantsRematch = true;
+        }
+
     }
 }

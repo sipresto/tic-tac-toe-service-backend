@@ -172,10 +172,34 @@ public class GameService {
 
             messageSendHandler.sendRematch(oldGameId, newGame.getId());
 
-            removeGame(oldGameId);
+            oldGame.setNewId(newGame.getId());
+            gameRepository.save(oldGame);
 
             return newGame;
 
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
+        }
+    }
+
+    @Transactional
+    public Game startRematch(UUID gameId, String playerId) {
+        try {
+            Game game = getGame(gameId);
+
+            if (game.getStatus() == GameStatus.IN_PROGRESS) {
+                throw new IllegalStateException("Game is not finished yet");
+            }
+
+            game.playerWantsRematch(playerId);
+
+            if (game.doRematch()) {
+                return createRematch(gameId);
+            }
+            else {
+                gameRepository.save(game);
+                return game;
+            }
         } catch (ObjectOptimisticLockingFailureException e) {
             throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
         }
@@ -208,7 +232,23 @@ public class GameService {
             messageSendHandler.sendGameResult(game);
             messageSendHandler.sendAchievementCompleted(game);
 
-            removeGame(gameId);
+            return game;
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new IllegalStateException("Another action was applied to the game simultaneously. Please reload.", e);
+        }
+    }
+
+    @Transactional
+    public Game leave(UUID gameId, String playerId) {
+        try {
+            Game game = getGame(gameId);
+
+            if (game.getStatus() == GameStatus.IN_PROGRESS) {
+                throw new IllegalStateException("Game is not finished yet");
+            }
+
+            game.leave(playerId);
+            gameRepository.save(game);
 
             return game;
         } catch (ObjectOptimisticLockingFailureException e) {

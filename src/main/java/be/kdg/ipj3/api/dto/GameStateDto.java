@@ -12,9 +12,13 @@ public record GameStateDto(
         @NotNull CellValue[][] board,
         @NotNull PlayerDto playerX,
         @NotNull PlayerDto playerO,
+        @NotNull boolean playerXWantsRematch,
+        @NotNull boolean playerOWantsRematch,
         @NotNull String currentPlayer,
         @NotNull String status,
-        String winner
+        String winner,
+        UUID newId,
+        @NotNull boolean leftGame
 ) {
     public static GameStateDto fromDomain(Game game) {
         return new GameStateDto(
@@ -22,9 +26,13 @@ public record GameStateDto(
                 game.getBoard(),
                 PlayerDto.fromDomain(game.getPlayerX()),
                 PlayerDto.fromDomain(game.getPlayerO()),
+                game.isPlayerXWantsRematch(),
+                game.isPlayerOWantsRematch(),
                 game.getCurrentPlayer().id().id(),
                 game.getStatus().name(),
-                game.getWinner() != null ? game.getWinner().id().id() : null
+                game.getWinner() != null ? game.getWinner().id().id() : null,
+                game.getNewId(),
+                game.hasLeftGame()
         );
     }
 
