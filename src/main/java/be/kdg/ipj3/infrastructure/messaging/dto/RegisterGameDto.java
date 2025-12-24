@@ -79,7 +79,7 @@ public record RegisterGameDto(
                     "Unbeatable",
                     "UNBEATABLE",
                     "Win or draw 10 games in a row",
-                    1,
+                    10,
                     30,
                     "STREAK",
                     "WIN_OR_DRAW_ANY"
