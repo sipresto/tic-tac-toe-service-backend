@@ -5,6 +5,7 @@ import be.kdg.ipj3.domain.Player;
 import be.kdg.ipj3.infrastructure.messaging.config.RabbitMQTopology;
 import be.kdg.ipj3.infrastructure.messaging.dto.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,12 @@ public class MessageSendHandler {
 
     private final RabbitTemplate rabbitTemplate;
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+    @Value("${backend.url}")
+    private String backendUrl;
+
     public MessageSendHandler(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -24,7 +31,7 @@ public class MessageSendHandler {
     public void sendRegistration() {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.register.tictactoe",
-                RegisterGameDto.create());
+                RegisterGameDto.create(backendUrl, frontendUrl));
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -32,10 +39,10 @@ public class MessageSendHandler {
         sendRegistration();
     }
 
-    public void sendGameResult(Game game) {
+    public void sendGameResult(Game game, boolean endOfGame) {
         this.rabbitTemplate.convertAndSend(RabbitMQTopology.GAME_EVENTS_EXCHANGE,
                 "game.result.tictactoe",
-                GameResultMessageDto.fromDomain(game));
+                GameResultMessageDto.fromDomain(game, endOfGame));
     }
 
     public void sendRematch(UUID oldGameId, UUID newGameId) {

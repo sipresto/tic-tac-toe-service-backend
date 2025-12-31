@@ -14,10 +14,11 @@ public record GameResultMessageDto(
         String winnerId,
         Difficulty difficulty,
         String status,
-        Instant completedAt
+        Instant completedAt,
+        boolean endOfGame
 ) {
 
-    public static GameResultMessageDto fromDomain(Game game) {
+    public static GameResultMessageDto fromDomain(Game game, boolean endOfGame) {
         List<String> players = new ArrayList<>();
 
         if (game.getPlayerX().isHuman()) {
@@ -39,7 +40,8 @@ public record GameResultMessageDto(
                         : (game.getWinner().isHuman()
                         ? "PLAYER_WIN"
                         : "AI_WIN"),
-                game.getLastActivity()
+                game.getLastActivity(),
+                endOfGame
         );
     }
 }
