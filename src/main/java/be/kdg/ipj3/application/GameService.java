@@ -56,7 +56,7 @@ public class GameService {
             }
 
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
-                messageSendHandler.sendGameResult(game);
+                messageSendHandler.sendGameResult(game, false);
                 messageSendHandler.sendAchievementCompleted(game);
             } else {
                 if (game.getCurrentPlayer().isHuman()) {
@@ -87,7 +87,7 @@ public class GameService {
             game.move(currentPlayer.id().id(), aiMove[0], aiMove[1]);
 
             if (game.getStatus() == GameStatus.FINISHED || game.getStatus() == GameStatus.DRAW) {
-                messageSendHandler.sendGameResult(game);
+                messageSendHandler.sendGameResult(game, false);
                 messageSendHandler.sendAchievementCompleted(game);
             } else {
                 messageSendHandler.sendTurnNotification(game);
@@ -229,7 +229,7 @@ public class GameService {
             game.resign(winner);
             gameRepository.save(game);
 
-            messageSendHandler.sendGameResult(game);
+            messageSendHandler.sendGameResult(game, false);
             messageSendHandler.sendAchievementCompleted(game);
 
             return game;
