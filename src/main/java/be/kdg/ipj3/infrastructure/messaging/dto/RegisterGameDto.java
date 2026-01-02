@@ -22,7 +22,8 @@ public record RegisterGameDto(
         List<RegisterAchievementDto> achievements,
         List<String> categories,
         String imageUrl,
-        @NotNull Instant timestamp
+        @NotNull Instant timestamp,
+        @NotNull int maxPlayers
 ) {
     private static final String NAME = "Tic Tac Toe";
     private static final String DESCRIPTION = "Tic Tac Toe is a puzzle game for two players, \"X\" and \"O\", who take turns marking spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a horizontal, vertical, or diagonal row wins the game.";
@@ -37,6 +38,8 @@ public record RegisterGameDto(
             The first player to get three of their marks in a row (horizontally, vertically, or diagonally) wins the game.
             If all nine spaces are filled and no player has three in a row, the game ends in a tie.""";
     private static final List<String> CATEGORIES = List.of("NATIVE", "STRATEGY");
+
+    private static final int MAX_PLAYERS = 2;
 
     private static final List<RegisterAchievementDto> ACHIEVEMENTS = List.of(
             new RegisterAchievementDto(
@@ -134,7 +137,8 @@ public record RegisterGameDto(
                 ACHIEVEMENTS,
                 CATEGORIES,
                 null,
-                Instant.now()
+                Instant.now(),
+                MAX_PLAYERS
         );
     }
 }
