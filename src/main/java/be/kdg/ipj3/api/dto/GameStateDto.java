@@ -38,10 +38,11 @@ public record GameStateDto(
 
     public record PlayerDto(
             @NotNull String id,
-            @NotNull boolean isHuman
+            @NotNull boolean isHuman,
+            @NotNull String name
     ) {
         public static PlayerDto fromDomain(Player player) {
-            return new PlayerDto(player.id().id(), player.isHuman());
+            return new PlayerDto(player.id().id(), player.isHuman(), player.name());
         }
     }
 }
