@@ -83,14 +83,14 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("POST", "/api/games/tictactoe").hasRole("SERVICE")
+                        .requestMatchers("/api/games/tictactoe").hasRole("SERVICE")
 
-                        .requestMatchers("POST", "/api/games/tictactoe/*/move").hasRole("PLAYER")
-                        .requestMatchers("POST", "/api/games/tictactoe/*/*/move").hasRole("PLAYER")
+                        .requestMatchers("/api/games/tictactoe/*/move").hasRole("PLAYER")
+                        .requestMatchers("/api/games/tictactoe/*/*/move").hasRole("PLAYER")
 
-                        .requestMatchers("GET", "/api/games/tictactoe").hasAnyRole("PLAYER", "SERVICE")
-                        .requestMatchers("GET", "/api/games/tictactoe/*").hasAnyRole("PLAYER", "SERVICE")
-                        .requestMatchers("GET", "/api/games/tictactoe/*/*").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("/api/games/tictactoe").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("/api/games/tictactoe/*").hasAnyRole("PLAYER", "SERVICE")
+                        .requestMatchers("/api/games/tictactoe/*/*").hasAnyRole("PLAYER", "SERVICE")
 
                         .anyRequest().authenticated()
                 )
